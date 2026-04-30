@@ -4,6 +4,7 @@
 __pycache__/
 *.o
 *.obj
+*.class
 *.exe
 *.dll
 *.so
@@ -33,15 +34,13 @@ coverage/
 htmlcov/
 .coverage
 
-# Build directories
+# Distribution / Build
 dist/
 build/
 target/
-.gradle/
-
-# Python specific
 .mypy_cache/
 .pytest_cache/
+.gradle/
 
 # System files
 .DS_Store
