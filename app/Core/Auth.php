@@ -105,6 +105,24 @@ class Auth
   }
 
   /**
+   * Get detailed list of completed challenges for profile page
+   * @return array [['lab_name' => 'xss', 'challenge' => 'lvl1', 'completed_at' => '...'], ...]
+   */
+  public function getCompletedChallengesDetailed(): array
+  {
+    if (!$this->isAuthenticated()) return [];
+
+    $userId = $_SESSION['user_id'];
+
+    $sql = "SELECT lab_name, challenge, completed_at
+            FROM lab_progress
+            WHERE user_id = :user_id AND completed = 1
+            ORDER BY completed_at DESC";
+    $stmt = $this->db->query($sql, ['user_id' => $userId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  /**
    * Get leaderboard data
    * @param int $limit
    * @return array
