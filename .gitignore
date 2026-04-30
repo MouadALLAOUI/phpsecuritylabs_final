@@ -2,9 +2,18 @@
 # Compiled and build artifacts
 *.pyc
 __pycache__/
+*.o
+*.obj
+*.class
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
 # Dependencies
 vendor/
+node_modules/
 composer.lock
 
 # Logs and temp files
@@ -21,17 +30,15 @@ composer.lock
 .vscode/
 .idea/
 
-# OS specific
-.DS_Store
-Thumbs.db
+# PHP specific
+*.phar
+.php_cs.cache
 
-# Coverage reports
+# Tests
+.phpunit.result.cache
+
+# Coverage
 coverage/
 htmlcov/
 .coverage
-
-# Distribution / build artifacts
-dist/
-build/
-target/
 ```

@@ -56,7 +56,7 @@ class AuthController
       exit;
     }
     $user = $this->auth->getUser();
-    $completed = $this->auth->getCompletedChallenges();
+    $completed = $this->auth->getCompletedChallengesDetailed();
     include_once ROOT . '/app/Views/profile.php';
   }
 

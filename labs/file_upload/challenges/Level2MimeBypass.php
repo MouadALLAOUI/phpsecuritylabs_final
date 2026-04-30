@@ -35,29 +35,69 @@ class Level2MimeBypass extends BaseChallenge implements ChallengeInterface
         }
     }
 
-    public function render(): string
+    public function render(): void
     {
-        ob_start();
-        include __DIR__ . '/../views/mime_upload_terminal.php';
-        return ob_get_clean();
+        include_once ROOT . '/shared/military-ui/header.php';
+?>
+<div class="mission-header">
+  <div class="mission-title">
+    <i class="fas fa-file-upload"></i>
+    <span>MISSION: MIME TYPE BYPASS</span>
+  </div>
+  <div class="mission-grid">
+    <div class="mission-stat">
+      <div class="stat-label">OBJECTIVE</div>
+      <div class="stat-value">UPLOAD WEB SHELL</div>
+    </div>
+    <div class="mission-stat">
+      <div class="stat-label">TARGET</div>
+      <div class="stat-value warning">MIME VALIDATION</div>
+    </div>
+    <div class="mission-stat">
+      <div class="stat-label">TECHNIQUE</div>
+      <div class="stat-value danger">HEADER SPOOFING</div>
+    </div>
+  </div>
+</div>
+
+<div class="terminal-panel">
+  <div class="terminal-header">
+    <i class="fas fa-upload"></i>
+    <span>SECURE FILE TRANSFER PROTOCOL</span>
+  </div>
+  <div class="terminal-body">
+    <form method="POST" enctype="multipart/form-data">
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-family: monospace; margin-bottom: 5px;">SELECT INTELLIGENCE PAYLOAD</label>
+        <input type="file" name="upload" class="mil-input" accept="image/*">
+      </div>
+      <button type="submit" class="mil-button">UPLOAD</button>
+    </form>
+
+    <?php if ($this->completed): ?>
+    <div class="terminal-panel" style="border-color: #00ff41; margin-top: 20px;">
+      <div class="terminal-header" style="background: rgba(0,255,65,0.1);">
+        <i class="fas fa-check-circle text-green"></i>
+        <span class="text-green">MISSION ACCOMPLISHED</span>
+      </div>
+      <div class="terminal-body">
+        <p class="text-green">Successfully bypassed MIME type validation and uploaded executable payload.</p>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="mil-hint-box" style="margin-top: 20px;">
+      <strong>INTELLIGENCE HINT:</strong><br>
+      The system only checks the Content-Type header sent by your browser, not the actual file content. Use browser dev tools or a proxy (Burp Suite) to change the Content-Type to 'image/jpeg' when uploading a .php file. Alternatively, rename your PHP file to shell.jpg and upload with spoofed MIME type.
+    </div>
+  </div>
+</div>
+<?php
+        include_once ROOT . '/shared/military-ui/footer.php';
     }
 
-    public function handle(array $data): array
+    public function handle(): void
     {
-        $response = [
-            'success' => false,
-            'message' => '',
-            'filename' => '',
-            'filepath' => '',
-            'scan_log' => [],
-            'mime_check' => '',
-            'extension_check' => ''
-        ];
-
-        // Add fake scan log entries
-        $response['scan_log'][] = '[SYSTEM] Initializing secure file transfer protocol...';
-        $response['scan_log'][] = '[SCAN] Analyzing uploaded file...';
-
         if (isset($_FILES['upload']) && $_FILES['upload']['error'] === UPLOAD_ERR_OK) {
             $file = $_FILES['upload'];
             $originalName = $file['name'];
@@ -67,98 +107,33 @@ class Level2MimeBypass extends BaseChallenge implements ChallengeInterface
             
             // Get file extension
             $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-            
-            $response['scan_log'][] = "[SCAN] File size: " . number_format($fileSize) . " bytes";
-            $response['scan_log'][] = "[SCAN] Original filename: " . basename($originalName);
-            $response['scan_log'][] = "[SCAN] Reported MIME type: " . $fileType;
-            $response['scan_log'][] = "[SCAN] Detected extension: ." . strtoupper($extension);
 
             // ⚠️ VULNERABLE: Only checking Content-Type header (easily spoofed)
             // No magic byte verification, no getimagesize() check
-            if (in_array($fileType, $this->allowedMimeTypes)) {
-                $response['mime_check'] = 'PASSED';
-                $response['scan_log'][] = "[CHECK] MIME type validation: PASSED";
-            } else {
-                $response['mime_check'] = 'FAILED';
-                $response['scan_log'][] = "[CHECK] MIME type validation: FAILED";
-                $response['scan_log'][] = "[REJECT] Invalid MIME type: " . $fileType;
-                $response['message'] = 'FILE REJECTED: Invalid content type. Only JPEG, PNG, GIF allowed.';
-                return $response;
+            if (!in_array($fileType, $this->allowedMimeTypes)) {
+                return;
             }
 
             // Also check extension (but this is also bypassable with double extensions or valid image names)
-            if (in_array($extension, $this->allowedExtensions)) {
-                $response['extension_check'] = 'PASSED';
-                $response['scan_log'][] = "[CHECK] Extension validation: PASSED";
-            } else {
-                $response['extension_check'] = 'FAILED';
-                $response['scan_log'][] = "[CHECK] Extension validation: FAILED";
-                $response['scan_log'][] = "[REJECT] Invalid extension: ." . $extension;
-                $response['message'] = 'FILE REJECTED: Invalid file extension. Only JPG, PNG, GIF allowed.';
-                return $response;
+            if (!in_array($extension, $this->allowedExtensions)) {
+                return;
             }
-
-            $response['scan_log'][] = "[WARN] Magic byte analysis: DISABLED";
-            $response['scan_log'][] = "[WARN] Image signature verification: SKIPPED";
-            $response['scan_log'][] = "[WARN] Content inspection: NOT PERFORMED";
             
             // Generate unique filename but preserve extension
             $newFilename = uniqid('intel_mime_') . '.' . $extension;
             $destination = $this->uploadDir . $newFilename;
 
             if (move_uploaded_file($tmpName, $destination)) {
-                $response['success'] = true;
-                $response['filename'] = $newFilename;
-                $response['filepath'] = '/labs/file_upload/uploads/' . $newFilename;
-                
-                $response['scan_log'][] = "[TRANSFER] File uploaded successfully";
-                $response['scan_log'][] = "[STORE] Saved to: " . $newFilename;
-                
                 // Check if it's actually a PHP file (web shell) despite having image MIME type
                 // Attacker would need to spoof Content-Type as image while uploading PHP
                 $content = file_get_contents($destination);
                 if (strpos($content, '<?php') !== false || strpos($content, '<?') !== false || strpos($content, '<%=') !== false) {
-                    $response['message'] = '⚠️ WARNING: Executable code detected in file with image MIME type!';
-                    $response['scan_log'][] = "[ALERT] EXECUTABLE CODE DETECTED DESPITE VALID MIME TYPE";
-                    $response['scan_log'][] = "[ALERT] MIME type spoofing successful!";
-                    $response['scan_log'][] = "[ALERT] Potential web shell uploaded!";
-                    $response['scan_log'][] = "[SUCCESS] Challenge complete - MIME filter bypassed";
-                    
-                    // Mark as completed if they uploaded a PHP file with spoofed MIME type
-                    $this->markCompleted();
                     Session::set('file_upload_lvl2_solved', true);
                     $this->completed = true;
-                } else {
-                    $response['message'] = 'File uploaded successfully. MIME type verified.';
-                    $response['scan_log'][] = "[VERIFY] File appears to be valid image";
+                    $this->markCompleted('file_upload', 'lvl2');
                 }
-            } else {
-                $response['message'] = 'File transfer failed';
-                $response['scan_log'][] = "[ERROR] File transfer failed";
             }
-        } elseif (isset($_FILES['upload'])) {
-            $response['message'] = 'File upload error: ' . $this->getUploadErrorMessage($_FILES['upload']['error']);
-            $response['scan_log'][] = "[ERROR] " . $response['message'];
-        } else {
-            $response['message'] = 'No file selected for transfer';
-            $response['scan_log'][] = "[IDLE] Awaiting file selection...";
         }
-
-        return $response;
-    }
-
-    private function getUploadErrorMessage($errorCode): string
-    {
-        $errors = [
-            UPLOAD_ERR_INI_SIZE => 'File exceeds server maximum size',
-            UPLOAD_ERR_FORM_SIZE => 'File exceeds form maximum size',
-            UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
-            UPLOAD_ERR_NO_FILE => 'No file was uploaded',
-            UPLOAD_ERR_NO_TMP_DIR => 'Server temporary directory missing',
-            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
-            UPLOAD_ERR_EXTENSION => 'PHP extension stopped the upload'
-        ];
-        return $errors[$errorCode] ?? 'Unknown upload error';
     }
 
     public function validate(array $data): bool
