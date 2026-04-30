@@ -43,7 +43,7 @@ class Level1CSRF extends BaseChallenge
         if (strtolower($transferTo) === 'attacker' || strtolower($transferTo) === 'hacker') {
           Session::set('csrf_lvl1_solved', true);
           $this->solved = true;
-          $this->markCompleted('csrf', 'lvl1');
+          // markCompleted() will be called in validate() instead
         }
       } else {
         $this->message = "Invalid transfer amount or insufficient funds.";

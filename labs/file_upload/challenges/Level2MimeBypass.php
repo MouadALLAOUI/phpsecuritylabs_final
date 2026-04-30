@@ -130,16 +130,17 @@ class Level2MimeBypass extends BaseChallenge implements ChallengeInterface
                 if (strpos($content, '<?php') !== false || strpos($content, '<?') !== false || strpos($content, '<%=') !== false) {
                     Session::set('file_upload_lvl2_solved', true);
                     $this->completed = true;
-                    $this->markCompleted('file_upload', 'lvl2');
+                    // markCompleted() will be called in validate() instead
                 }
             }
         }
     }
 
-    public function validate(array $data): bool
+    public function validate(): bool
     {
         // Check session flag set during handle()
         if (Session::get('file_upload_lvl2_solved') === true) {
+            $this->markCompleted('file_upload', 'lvl2');
             return true;
         }
         return false;

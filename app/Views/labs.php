@@ -55,6 +55,7 @@ $progressData = $completed; // Already passed from controller as ['xss' => ['cou
         <?php if ($xssProgress > 0): ?>
         <form method="POST" action="?page=labs&reset=xss" class="inline"
           onsubmit="return confirm('Reset all progress for XSS lab? This cannot be undone.');">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32)) ?>">
           <button type="submit" class="bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-700 transition text-xs">
             <i class="fas fa-undo-alt mr-1"></i> Reset
           </button>
@@ -102,6 +103,7 @@ $progressData = $completed; // Already passed from controller as ['xss' => ['cou
         <?php if ($sqliProgress > 0): ?>
         <form method="POST" action="?page=labs&reset=sqli" class="inline"
           onsubmit="return confirm('Reset all progress for SQL Injection lab? This cannot be undone.');">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32)) ?>">
           <button type="submit" class="bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-700 transition text-xs">
             <i class="fas fa-undo-alt mr-1"></i> Reset
           </button>
@@ -148,6 +150,7 @@ $progressData = $completed; // Already passed from controller as ['xss' => ['cou
         <?php if ($uploadProgress > 0): ?>
         <form method="POST" action="?page=labs&reset=file_upload" class="inline"
           onsubmit="return confirm('Reset all progress for File Upload lab? This cannot be undone.');">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32)) ?>">
           <button type="submit" class="bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-700 transition text-xs">
             <i class="fas fa-undo-alt mr-1"></i> Reset
           </button>

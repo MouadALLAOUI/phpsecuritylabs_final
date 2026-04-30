@@ -15,6 +15,7 @@
     <?php endif; ?>
 
     <form method="POST" action="?page=login&action=do">
+      <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32)) ?>">
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>
         <input type="text" name="username" id="username" required

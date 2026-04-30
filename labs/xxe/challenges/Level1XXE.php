@@ -39,7 +39,7 @@ class Level1XXE extends BaseChallenge
         if ($this->checkForXXESuccess($this->parsedData)) {
           Session::set('xxe_lvl1_solved', true);
           $this->solved = true;
-          $this->markCompleted('xxe', 'lvl1');
+          // markCompleted() will be called in validate() instead
           $this->message = "XXE Attack Successful! You extracted sensitive system information.";
         } else {
           $this->message = "XML processed successfully. Can you extract sensitive data?";

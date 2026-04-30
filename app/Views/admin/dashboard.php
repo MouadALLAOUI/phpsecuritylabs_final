@@ -56,6 +56,7 @@
             <td class="actions">
               <form method="POST" action="?page=admin&action=reset" style="display:inline;"
                 onsubmit="return confirm('Reset all progress for this operator?');">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32)) ?>">
                 <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                 <button type="submit" name="lab_name" value="xss" class="btn-small btn-warning">XSS</button>
                 <button type="submit" name="lab_name" value="sqli" class="btn-small btn-warning">SQLi</button>
