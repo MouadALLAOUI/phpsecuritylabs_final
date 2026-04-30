@@ -208,3 +208,18 @@ ADD COLUMN source_id INT UNSIGNED NULL;
 
 ALTER TABLE audit_trail 
 ADD COLUMN action_type VARCHAR(50) DEFAULT 'system';
+-- ------------------------------------------------------------
+-- 3. LAB SETTINGS TABLE (for LabEngine persistence)
+-- ------------------------------------------------------------
+USE php_security_labs_app;
+
+CREATE TABLE IF NOT EXISTS lab_settings (
+    id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         INT UNSIGNED NOT NULL,
+    vulnerabilities JSON         NOT NULL,
+    created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_lab_settings_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY uq_user_lab_settings (user_id),
+    INDEX idx_user (user_id)
+) ENGINE=InnoDB;
