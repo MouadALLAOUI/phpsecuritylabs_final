@@ -9,12 +9,14 @@
  * concatenated into SQL queries without proper escaping or parameterization.
  */
 
-namespace App\Labs\SQLi\Challenges;
+namespace Labs\SQLi\Challenges;
 
 use App\Core\ChallengeInterface;
+use App\Core\BaseChallenge;
 use App\Core\Database;
+use App\Core\Session;
 
-class Level1AuthBypass implements ChallengeInterface
+class Level1AuthBypass extends BaseChallenge implements ChallengeInterface
 {
     private $completed = false;
     private $db;
@@ -22,6 +24,11 @@ class Level1AuthBypass implements ChallengeInterface
     public function __construct()
     {
         $this->db = Database::getInstance('labs');
+        
+        // Check if already solved via session
+        if (Session::get('sqli_solved') === true) {
+            $this->completed = true;
+        }
     }
 
     public function render(): string
@@ -61,6 +68,8 @@ class Level1AuthBypass implements ChallengeInterface
                     // Check if they extracted admin access (clearance level 5)
                     if ($user['clearance_level'] >= 5) {
                         $this->markCompleted();
+                        Session::set('sqli_solved', true);
+                        $this->completed = true;
                         $response['message'] = 'ACCESS GRANTED: Administrative privileges obtained. Challenge complete.';
                     } else {
                         $response['message'] = 'ACCESS GRANTED: Welcome, Agent ' . htmlspecialchars($user['username']);
@@ -80,12 +89,16 @@ class Level1AuthBypass implements ChallengeInterface
     public function validate(array $data): bool
     {
         // Validation is handled in handle() by checking clearance level
+        // Also check session flag
+        if (Session::get('sqli_solved') === true) {
+            return true;
+        }
         return false;
     }
 
     public function getHint(): string
     {
-        return "SQL Injection allows you to manipulate database queries. Try using a classic payload like ' OR '1'='1 to bypass authentication. To extract all records, use UNION-based injection.";
+        return "SQL Injection allows you to manipulate database queries. Try using a classic payload like ' OR '1'='1' -- to bypass authentication. To extract all records, use UNION-based injection.";
     }
 
     public function getTitle(): string

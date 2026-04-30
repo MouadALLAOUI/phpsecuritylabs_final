@@ -6,7 +6,7 @@
 
 define('ROOT', __DIR__);
 
-// PSR‑4‑like autoloader
+// PSR-4-like autoloader
 spl_autoload_register(function (string $class) {
   $prefixMap = [
     'App\\'  => ROOT . '/app/',
@@ -25,17 +25,19 @@ spl_autoload_register(function (string $class) {
     }
   }
 });
-session_start(); // <-- ADD THIS LINE
+
+session_start();
+
 use App\Core\App;
 use App\Core\ChallengeLoader;
 
 // -------------------------------------------------------------------
-// 1. Lab challenge with explicit level (?page=xss&lvl=1)
+// 1. Lab challenge with explicit level (?page=xss&lvl=1, ?page=sqli&lvl=1, etc.)
 // -------------------------------------------------------------------
 $page = $_GET['page'] ?? null;
 $lvl  = $_GET['lvl']  ?? null;
 
-if ($page && $lvl !== null && $page !== 'home') {
+if ($page && $lvl !== null && in_array($page, ['xss', 'sqli', 'file_upload'])) {
   $loader = new ChallengeLoader();
   $loader->execute($page, 'lvl' . $lvl);
   exit;

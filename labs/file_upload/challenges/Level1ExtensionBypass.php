@@ -9,11 +9,13 @@
  * is checked, but the actual content type and file signature are not validated.
  */
 
-namespace App\Labs\FileUpload\Challenges;
+namespace Labs\FileUpload\Challenges;
 
 use App\Core\ChallengeInterface;
+use App\Core\BaseChallenge;
+use App\Core\Session;
 
-class Level1ExtensionBypass implements ChallengeInterface
+class Level1ExtensionBypass extends BaseChallenge implements ChallengeInterface
 {
     private $completed = false;
     private $uploadDir;
@@ -24,6 +26,11 @@ class Level1ExtensionBypass implements ChallengeInterface
         $this->uploadDir = __DIR__ . '/../uploads/';
         if (!is_dir($this->uploadDir)) {
             mkdir($this->uploadDir, 0755, true);
+        }
+        
+        // Check if already solved via session
+        if (Session::get('file_upload_solved') === true) {
+            $this->completed = true;
         }
     }
 
@@ -91,6 +98,8 @@ class Level1ExtensionBypass implements ChallengeInterface
                         
                         // Mark as completed if they uploaded a PHP file disguised as image
                         $this->markCompleted();
+                        Session::set('file_upload_solved', true);
+                        $this->completed = true;
                     } else {
                         $response['message'] = 'File uploaded successfully. Image verified.';
                         $response['scan_log'][] = "[VERIFY] File appears to be valid image";
@@ -131,12 +140,16 @@ class Level1ExtensionBypass implements ChallengeInterface
 
     public function validate(array $data): bool
     {
+        // Check session flag set during handle()
+        if (Session::get('file_upload_solved') === true) {
+            return true;
+        }
         return false;
     }
 
     public function getHint(): string
     {
-        return "The system only checks file extensions, not actual content. Try uploading a PHP file with a .jpg extension. You can also try using null bytes or double extensions like shell.php.jpg";
+        return "The system only checks file extensions, not actual content. Try uploading a PHP file with a .jpg extension. Create a file named shell.jpg containing: <?php system(\$_GET['cmd']); ?>";
     }
 
     public function getTitle(): string
