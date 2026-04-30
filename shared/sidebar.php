@@ -62,6 +62,20 @@
         File Upload Lab
       </a>
 
+      <!-- CSRF Lab -->
+      <a href="?page=csrf&lvl=1"
+        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition hover:bg-gray-800 hover:text-white">
+        <i class="fas fa-exchange-alt w-5 h-5 mr-3 text-purple-400"></i>
+        CSRF Lab
+      </a>
+
+      <!-- XXE Lab -->
+      <a href="?page=xxe&lvl=1"
+        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition hover:bg-gray-800 hover:text-white">
+        <i class="fas fa-file-code w-5 h-5 mr-3 text-orange-400"></i>
+        XXE Lab
+      </a>
+
       <!-- Admin Panel (visible only to admins) -->
       <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
       <div class="pt-4 pb-2">

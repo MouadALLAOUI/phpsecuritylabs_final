@@ -406,3 +406,72 @@ function initializeSystem() {
     addLogEntry(logContainer, 'TERMINAL READY', 'text-green');
   }
 }
+
+// ============================================
+// LANGUAGE SWITCHER
+// ============================================
+function changeLanguage(lang) {
+  // Save to session via AJAX
+  fetch('?page=settings&action=set_language', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'lang=' + encodeURIComponent(lang)
+  })
+  .then(response => response.text())
+  .then(data => {
+    console.log('Language changed to:', lang);
+    // Reload page to apply new language
+    window.location.reload();
+  })
+  .catch(error => {
+    console.error('Error changing language:', error);
+  });
+}
+
+// ============================================
+// THEME TOGGLE
+// ============================================
+function toggleTheme() {
+  const body = document.body;
+  const currentTheme = localStorage.getItem('theme') || 'military';
+  
+  let newTheme;
+  if (currentTheme === 'military') {
+    newTheme = 'light';
+    body.classList.remove('mil-body');
+    body.classList.add('light-theme');
+  } else {
+    newTheme = 'military';
+    body.classList.remove('light-theme');
+    body.classList.add('mil-body');
+  }
+  
+  localStorage.setItem('theme', newTheme);
+  
+  // Save to session via AJAX
+  fetch('?page=settings&action=set_theme', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'theme=' + encodeURIComponent(newTheme)
+  })
+  .then(response => response.text())
+  .then(data => {
+    console.log('Theme changed to:', newTheme);
+  })
+  .catch(error => {
+    console.error('Error changing theme:', error);
+  });
+}
+
+// Initialize theme on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const savedTheme = localStorage.getItem('theme') || 'military';
+  if (savedTheme === 'light') {
+    document.body.classList.add('light-theme');
+    document.body.classList.remove('mil-body');
+  }
+});

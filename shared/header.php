@@ -55,6 +55,18 @@
               class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition">
               <i class="fas fa-user-circle mr-1"></i> Profile
             </a>
+            <!-- Language Selector -->
+            <select id="languageSelector" onchange="changeLanguage(this.value)" 
+              class="ml-2 bg-gray-800 text-gray-300 border border-gray-600 rounded px-2 py-1 text-xs focus:outline-none focus:border-indigo-500">
+              <option value="en" <?= (($_SESSION['lang'] ?? 'en') === 'en') ? 'selected' : '' ?>>EN</option>
+              <option value="es" <?= (($_SESSION['lang'] ?? 'en') === 'es') ? 'selected' : '' ?>>ES</option>
+              <option value="fr" <?= (($_SESSION['lang'] ?? 'en') === 'fr') ? 'selected' : '' ?>>FR</option>
+            </select>
+            <!-- Theme Toggle -->
+            <button onclick="toggleTheme()" 
+              class="ml-1 bg-gray-800 text-gray-300 border border-gray-600 rounded px-2 py-1 text-xs hover:bg-gray-700 focus:outline-none">
+              <i class="fas fa-adjust"></i>
+            </button>
           </div>
         </div>
 

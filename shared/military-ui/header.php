@@ -59,10 +59,31 @@ $sidebarMenu = [
   ],
   'secrets' => [
     'page' => 'sqli',
-    'lvl' => 2,  // future UNION level
+    'lvl' => 2,
     'title' => 'SECRETS',
     'icon' => 'key',
     'badge' => 'SQLi Union'
+  ],
+  'uploads' => [
+    'page' => 'file_upload',
+    'lvl' => 1,
+    'title' => 'UPLOADS',
+    'icon' => 'upload',
+    'badge' => 'File Upload'
+  ],
+  'csrf-ops' => [
+    'page' => 'csrf',
+    'lvl' => 1,
+    'title' => 'CSRF OPS',
+    'icon' => 'exchange-alt',
+    'badge' => 'CSRF'
+  ],
+  'xxe-intel' => [
+    'page' => 'xxe',
+    'lvl' => 1,
+    'title' => 'XXE INTEL',
+    'icon' => 'file-code',
+    'badge' => 'XXE'
   ],
   'audit' => [
     'page' => 'xss_admin_reports',
@@ -130,6 +151,20 @@ function isMenuItemActive($item)
       <span class="connection-status secure"><i class="fas fa-lock"></i> SECURE LINK ACTIVE</span>
     </div>
     <div class="top-bar-right">
+      <!-- Language Selector -->
+      <select id="languageSelector" onchange="changeLanguage(this.value)" 
+        class="bg-gray-800 text-green-400 border border-green-700 rounded px-2 py-1 text-xs mr-2 focus:outline-none focus:border-green-500">
+        <option value="en" <?= (($_SESSION['lang'] ?? 'en') === 'en') ? 'selected' : '' ?>>EN</option>
+        <option value="es" <?= (($_SESSION['lang'] ?? 'en') === 'es') ? 'selected' : '' ?>>ES</option>
+        <option value="fr" <?= (($_SESSION['lang'] ?? 'en') === 'fr') ? 'selected' : '' ?>>FR</option>
+      </select>
+      
+      <!-- Theme Toggle -->
+      <button onclick="toggleTheme()" 
+        class="bg-gray-800 text-green-400 border border-green-700 rounded px-2 py-1 text-xs mr-2 hover:bg-gray-700 focus:outline-none">
+        <i class="fas fa-adjust"></i>
+      </button>
+      
       <div class="agent-info"><span class="agent-label">AGENT:</span><span
           class="agent-codename"><?= htmlspecialchars($agentCodename) ?></span></div>
       <div class="clearance-info"><span class="clearance-label">CLEARANCE:</span><span
