@@ -158,6 +158,88 @@ $progressData = $completed; // Already passed from controller as ['xss' => ['cou
         <?php endif; ?>
       </div>
     </div>
+
+    <!-- CSRF Lab -->
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-400">
+      <div class="flex justify-between items-start">
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900">Cross-Site Request Forgery (CSRF)</h2>
+          <p class="text-gray-600 mt-1">Exploit missing CSRF tokens to perform unauthorized fund transfers.</p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span class="px-2 py-1 bg-gray-100 text-xs rounded">Level 1: Basic CSRF</span>
+            <span class="px-2 py-1 bg-gray-100 text-xs rounded">Level 2: Token Prediction</span>
+          </div>
+        </div>
+        <a href="?page=csrf&lvl=1"
+          class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition text-sm">Start Lab</a>
+      </div>
+      <?php
+      $csrfProgress = $progressData['csrf']['count'] ?? 0;
+      $csrfLastSolved = $progressData['csrf']['last_solved'] ?? null;
+      $csrfTotal = 2;
+      ?>
+      <div class="mt-3 flex justify-between items-center">
+        <div class="text-sm text-gray-500">
+          Progress: <?= $csrfProgress ?>/<?= $csrfTotal ?> completed
+          <div class="w-48 bg-gray-200 rounded-full h-1.5 mt-1 inline-block ml-2">
+            <div class="bg-indigo-600 h-1.5 rounded-full" style="width: <?= ($csrfProgress / $csrfTotal) * 100 ?>%"></div>
+          </div>
+          <?php if ($csrfLastSolved): ?>
+          <div class="mt-1 text-xs text-gray-400">Last solved: <?= date('Y-m-d H:i', strtotime($csrfLastSolved)) ?></div>
+          <?php endif; ?>
+        </div>
+        <?php if ($csrfProgress > 0): ?>
+        <form method="POST" action="?page=labs&reset=csrf" class="inline"
+          onsubmit="return confirm('Reset all progress for CSRF lab? This cannot be undone.');">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32)) ?>">
+          <button type="submit" class="bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-700 transition text-xs">
+            <i class="fas fa-undo-alt mr-1"></i> Reset
+          </button>
+        </form>
+        <?php endif; ?>
+      </div>
+    </div>
+
+    <!-- XXE Lab -->
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-400">
+      <div class="flex justify-between items-start">
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900">XML External Entity (XXE)</h2>
+          <p class="text-gray-600 mt-1">Exploit XML parsers to read sensitive files and exfiltrate data.</p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span class="px-2 py-1 bg-gray-100 text-xs rounded">Level 1: Basic XXE</span>
+            <span class="px-2 py-1 bg-gray-100 text-xs rounded">Level 2: Blind XXE (OOB)</span>
+          </div>
+        </div>
+        <a href="?page=xxe&lvl=1"
+          class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition text-sm">Start Lab</a>
+      </div>
+      <?php
+      $xxeProgress = $progressData['xxe']['count'] ?? 0;
+      $xxeLastSolved = $progressData['xxe']['last_solved'] ?? null;
+      $xxeTotal = 2;
+      ?>
+      <div class="mt-3 flex justify-between items-center">
+        <div class="text-sm text-gray-500">
+          Progress: <?= $xxeProgress ?>/<?= $xxeTotal ?> completed
+          <div class="w-48 bg-gray-200 rounded-full h-1.5 mt-1 inline-block ml-2">
+            <div class="bg-indigo-600 h-1.5 rounded-full" style="width: <?= ($xxeProgress / $xxeTotal) * 100 ?>%"></div>
+          </div>
+          <?php if ($xxeLastSolved): ?>
+          <div class="mt-1 text-xs text-gray-400">Last solved: <?= date('Y-m-d H:i', strtotime($xxeLastSolved)) ?></div>
+          <?php endif; ?>
+        </div>
+        <?php if ($xxeProgress > 0): ?>
+        <form method="POST" action="?page=labs&reset=xxe" class="inline"
+          onsubmit="return confirm('Reset all progress for XXE lab? This cannot be undone.');">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32)) ?>">
+          <button type="submit" class="bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-700 transition text-xs">
+            <i class="fas fa-undo-alt mr-1"></i> Reset
+          </button>
+        </form>
+        <?php endif; ?>
+      </div>
+    </div>
   </div>
 </div>
 <?php include_once ROOT . '/shared/footer.php'; ?>

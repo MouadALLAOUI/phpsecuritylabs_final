@@ -37,7 +37,7 @@ use App\Core\ChallengeLoader;
 $page = $_GET['page'] ?? null;
 $lvl  = $_GET['lvl']  ?? null;
 
-if ($page && $lvl !== null && in_array($page, ['xss', 'sqli', 'file_upload'])) {
+if ($page && $lvl !== null && in_array($page, ['xss', 'sqli', 'file_upload', 'csrf', 'xxe'])) {
   $loader = new ChallengeLoader();
   $loader->execute($page, 'lvl' . $lvl);
   exit;
