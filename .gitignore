@@ -20,6 +20,7 @@ composer.lock
 *.log
 *.tmp
 *.swp
+*.swo
 
 # Environment
 .env
@@ -29,16 +30,21 @@ composer.lock
 # Editors
 .vscode/
 .idea/
-
-# PHP specific
-*.phar
-.php_cs.cache
-
-# Tests
-.phpunit.result.cache
+*.swp
+*.swo
 
 # Coverage
 coverage/
 htmlcov/
 .coverage
+
+# Distribution / packaging
+dist/
+build/
+*.tar.gz
+*.zip
+
+# OS generated files
+.DS_Store
+Thumbs.db
 ```

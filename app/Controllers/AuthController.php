@@ -25,11 +25,24 @@ class AuthController
       header('Location: ?page=profile');
       exit;
     }
+    
+    // Generate CSRF token for login form
+    if (empty($_SESSION['csrf_token'])) {
+      $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    
     include_once ROOT . '/app/Views/login.php';
   }
 
   public function handleLogin(): void
   {
+    // CSRF protection for core authentication
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+      $_SESSION['login_error'] = 'Invalid security token';
+      header('Location: ?page=login');
+      exit;
+    }
+    
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
@@ -98,6 +111,13 @@ class AuthController
     if (!$this->auth->isAdmin()) {
       http_response_code(403);
       echo 'Unauthorized';
+      exit;
+    }
+
+    // CSRF protection for admin actions
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+      $_SESSION['admin_message'] = 'Invalid security token';
+      header('Location: ?page=admin');
       exit;
     }
 

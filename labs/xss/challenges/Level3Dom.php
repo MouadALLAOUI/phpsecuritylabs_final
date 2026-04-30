@@ -19,9 +19,9 @@ class Level3Dom extends BaseChallenge
         // DOM XSS is client-side; no server handling needed.
         // However, we need to capture the verify action from the payload.
         if (isset($_GET['action']) && $_GET['action'] === 'verify') {
-            $this->markCompleted('xss', 'lvl3');
             Session::set('xss_lvl3_solved', true);
             $this->completed = true;
+            // markCompleted() will be called in validate() instead
             header('Location: ?page=xss&lvl=3&status=complete');
             exit;
         }
@@ -89,6 +89,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     public function validate(): bool
     {
-        return Session::get('xss_lvl3_solved') === true;
+        if (Session::get('xss_lvl3_solved') === true) {
+            $this->markCompleted('xss', 'lvl3');
+            return true;
+        }
+        return false;
     }
 }
