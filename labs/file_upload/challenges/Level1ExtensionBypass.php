@@ -1,164 +1,158 @@
 <?php
+
 /**
  * File Upload Lab - Level 1
  * 
  * Vulnerability: Weak file validation (extension only, no content check)
- * Attack Vector: Upload malicious file (web shell) by bypassing extension filter
- * 
- * This challenge demonstrates insecure file upload where only the file extension
- * is checked, but the actual content type and file signature are not validated.
  */
 
 namespace Labs\FileUpload\Challenges;
 
-use App\Core\ChallengeInterface;
 use App\Core\BaseChallenge;
 use App\Core\Session;
 
-class Level1ExtensionBypass extends BaseChallenge implements ChallengeInterface
+class Level1ExtensionBypass extends BaseChallenge
 {
-    private $completed = false;
-    private $uploadDir;
-    private $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+  private string $uploadDir;
+  private string $message = '';
+  private array $uploadLog = [];
+  private bool $attempted = false;
+  private bool $uploadSuccess = false;
 
-    public function __construct()
-    {
-        $this->uploadDir = __DIR__ . '/../uploads/';
-        if (!is_dir($this->uploadDir)) {
-            mkdir($this->uploadDir, 0755, true);
-        }
-        
-        // Check if already solved via session
-        if (Session::get('file_upload_solved') === true) {
+  public function __construct()
+  {
+    $this->uploadDir = ROOT . '/storage/uploads/';
+    if (!is_dir($this->uploadDir)) {
+      mkdir($this->uploadDir, 0755, true);
+    }
+
+    if (Session::get('file_upload_solved') === true) {
+      $this->completed = true;
+    }
+  }
+
+  public function handle(): void
+  {
+    if ($this->isPost() && isset($_FILES['upload'])) {
+      $this->attempted = true;
+      $file = $_FILES['upload'];
+      $originalName = $file['name'];
+      $tmpName = $file['tmp_name'];
+      $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+      $this->uploadLog[] = ['time' => date('H:i:s'), 'msg' => "Processing: $originalName"];
+
+      // ⚠️ VULNERABLE: Only checks extension
+      $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+      if (in_array($extension, $allowed)) {
+        $this->uploadLog[] = ['time' => date('H:i:s'), 'msg' => "Extension check PASSED"];
+        $newName = uniqid('upload_') . '.' . $extension;
+        $dest = $this->uploadDir . $newName;
+
+        if (move_uploaded_file($tmpName, $dest)) {
+          $this->uploadSuccess = true;
+          $this->message = "File uploaded successfully: $newName";
+          $this->uploadLog[] = ['time' => date('H:i:s'), 'msg' => "Saved as: $newName"];
+
+          // Check for PHP code inside
+          $content = file_get_contents($dest);
+          if (strpos($content, '<?php') !== false) {
+            $this->message .= " [BACKDOOR DETECTED] Challenge complete!";
+            $this->markCompleted('file_upload', 'lvl1');
+            Session::set('file_upload_solved', true);
             $this->completed = true;
-        }
-    }
-
-    public function render(): string
-    {
-        ob_start();
-        include __DIR__ . '/views/upload_terminal.php';
-        return ob_get_clean();
-    }
-
-    public function handle(array $data): array
-    {
-        $response = [
-            'success' => false,
-            'message' => '',
-            'filename' => '',
-            'filepath' => '',
-            'scan_log' => []
-        ];
-
-        // Add fake scan log entries
-        $response['scan_log'][] = '[SYSTEM] Initializing file transfer protocol...';
-        $response['scan_log'][] = '[SCAN] Analyzing uploaded file...';
-
-        if (isset($_FILES['upload']) && $_FILES['upload']['error'] === UPLOAD_ERR_OK) {
-            $file = $_FILES['upload'];
-            $originalName = $file['name'];
-            $tmpName = $file['tmp_name'];
-            $fileSize = $file['size'];
-            
-            // Get file extension
-            $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-            
-            $response['scan_log'][] = "[SCAN] File size: " . number_format($fileSize) . " bytes";
-            $response['scan_log'][] = "[SCAN] Original filename: " . basename($originalName);
-            $response['scan_log'][] = "[SCAN] Detected extension: ." . strtoupper($extension);
-
-            // ⚠️ VULNERABLE: Only checking extension, NOT content type or file signature
-            // No MIME type verification, no magic byte checking
-            if (in_array($extension, $this->allowedExtensions)) {
-                $response['scan_log'][] = "[CHECK] Extension validation: PASSED";
-                $response['scan_log'][] = "[WARN] Content-type verification: DISABLED";
-                $response['scan_log'][] = "[WARN] Magic byte analysis: DISABLED";
-                
-                // Generate unique filename but preserve extension
-                $newFilename = uniqid('intel_') . '.' . $extension;
-                $destination = $this->uploadDir . $newFilename;
-
-                if (move_uploaded_file($tmpName, $destination)) {
-                    $response['success'] = true;
-                    $response['filename'] = $newFilename;
-                    $response['filepath'] = '/labs/file_upload/uploads/' . $newFilename;
-                    
-                    $response['scan_log'][] = "[TRANSFER] File uploaded successfully";
-                    $response['scan_log'][] = "[STORE] Saved to: " . $newFilename;
-                    
-                    // Check if it's actually a PHP file (web shell)
-                    // Read first few bytes to check for PHP tags
-                    $content = file_get_contents($destination);
-                    if (strpos($content, '<?php') !== false || strpos($content, '<?') !== false || strpos($content, '<%=') !== false) {
-                        $response['message'] = '⚠️ WARNING: Executable code detected in image file!';
-                        $response['scan_log'][] = "[ALERT] EXECUTABLE CODE DETECTED IN UPLOADED FILE";
-                        $response['scan_log'][] = "[ALERT] Potential web shell uploaded!";
-                        $response['scan_log'][] = "[SUCCESS] Challenge complete - File filter bypassed";
-                        
-                        // Mark as completed if they uploaded a PHP file disguised as image
-                        $this->markCompleted();
-                        Session::set('file_upload_solved', true);
-                        $this->completed = true;
-                    } else {
-                        $response['message'] = 'File uploaded successfully. Image verified.';
-                        $response['scan_log'][] = "[VERIFY] File appears to be valid image";
-                    }
-                } else {
-                    $response['message'] = 'File transfer failed';
-                    $response['scan_log'][] = "[ERROR] File transfer failed";
-                }
-            } else {
-                $response['message'] = 'FILE REJECTED: Invalid file type. Only JPG, PNG, GIF allowed.';
-                $response['scan_log'][] = "[CHECK] Extension validation: FAILED";
-                $response['scan_log'][] = "[REJECT] File type not permitted";
-            }
-        } elseif (isset($_FILES['upload'])) {
-            $response['message'] = 'File upload error: ' . $this->getUploadErrorMessage($_FILES['upload']['error']);
-            $response['scan_log'][] = "[ERROR] " . $response['message'];
+            $this->uploadLog[] = ['time' => date('H:i:s'), 'msg' => "ALERT: PHP code detected in uploaded file"];
+          }
         } else {
-            $response['message'] = 'No file selected for transfer';
-            $response['scan_log'][] = "[IDLE] Awaiting file selection...";
+          $this->message = "Upload failed.";
+          $this->uploadLog[] = ['time' => date('H:i:s'), 'msg' => "Move failed"];
         }
-
-        return $response;
+      } else {
+        $this->message = "Rejected: Invalid file type. Only JPG, PNG, GIF allowed.";
+        $this->uploadLog[] = ['time' => date('H:i:s'), 'msg' => "Extension check FAILED"];
+      }
     }
+  }
 
-    private function getUploadErrorMessage($errorCode): string
-    {
-        $errors = [
-            UPLOAD_ERR_INI_SIZE => 'File exceeds server maximum size',
-            UPLOAD_ERR_FORM_SIZE => 'File exceeds form maximum size',
-            UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
-            UPLOAD_ERR_NO_FILE => 'No file was uploaded',
-            UPLOAD_ERR_NO_TMP_DIR => 'Server temporary directory missing',
-            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
-            UPLOAD_ERR_EXTENSION => 'PHP extension stopped the upload'
-        ];
-        return $errors[$errorCode] ?? 'Unknown upload error';
-    }
+  public function render(): void
+  {
+    include_once ROOT . '/shared/military-ui/header.php';
+?>
+<div class="mission-header">
+  <div class="mission-title">
+    <i class="fas fa-upload"></i>
+    <span>MISSION: PAYLOAD DELIVERY</span>
+  </div>
+  <div class="mission-grid">
+    <div class="mission-stat">
+      <div class="stat-label">OBJECTIVE</div>
+      <div class="stat-value">UPLOAD WEB SHELL</div>
+    </div>
+    <div class="mission-stat">
+      <div class="stat-label">TARGET</div>
+      <div class="stat-value warning">SECURE FILE TRANSFER</div>
+    </div>
+    <div class="mission-stat">
+      <div class="stat-label">CLEARANCE</div>
+      <div class="stat-value danger">LEVEL 1</div>
+    </div>
+  </div>
+</div>
 
-    public function validate(array $data): bool
-    {
-        // Check session flag set during handle()
-        if (Session::get('file_upload_solved') === true) {
-            return true;
-        }
-        return false;
-    }
+<div class="terminal-panel">
+  <div class="terminal-header">
+    <i class="fas fa-terminal"></i>
+    <span>FILE TRANSFER TERMINAL</span>
+  </div>
+  <div class="terminal-body">
+    <form method="POST" enctype="multipart/form-data">
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-family: monospace; margin-bottom: 5px;">SELECT FILE</label>
+        <input type="file" name="upload" class="mil-input">
+      </div>
+      <button type="submit" class="mil-button">UPLOAD</button>
+    </form>
 
-    public function getHint(): string
-    {
-        return "The system only checks file extensions, not actual content. Try uploading a PHP file with a .jpg extension. Create a file named shell.jpg containing: <?php system(\$_GET['cmd']); ?>";
-    }
+    <?php if ($this->attempted): ?>
+    <div class="output-terminal" style="margin-top: 20px;">
+      <?= htmlspecialchars($this->message) ?>
+    </div>
+    <?php endif; ?>
 
-    public function getTitle(): string
-    {
-        return "Intelligence Upload System";
-    }
+    <?php if (!empty($this->uploadLog)): ?>
+    <div class="output-terminal" style="margin-top: 20px; background: #000; font-size: 12px;">
+      <strong>TRANSFER LOG:</strong><br>
+      <?php foreach ($this->uploadLog as $log): ?>
+      [<?= $log['time'] ?>] <?= htmlspecialchars($log['msg']) ?><br>
+      <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
 
-    public function getDescription(): string
-    {
-        return "Bypass file validation to upload executable intelligence payloads to the secure server.";
-    }
+    <div class="mil-hint-box" style="margin-top: 20px;">
+      <strong>INTELLIGENCE:</strong> Only extension is checked. Create a PHP file named <code>shell.jpg</code>
+      containing <code>&lt;?php system($_GET['cmd']); ?&gt;</code>.
+    </div>
+  </div>
+</div>
+
+<?php if ($this->completed): ?>
+<div class="terminal-panel" style="border-color: #00ff41;">
+  <div class="terminal-header" style="background: rgba(0,255,65,0.1);">
+    <i class="fas fa-check-circle text-green"></i>
+    <span class="text-green">MISSION ACCOMPLISHED</span>
+  </div>
+  <div class="terminal-body">
+    <p class="text-green">File upload bypassed. Backdoor deployed.</p>
+  </div>
+</div>
+<?php endif; ?>
+
+<?php
+    include_once ROOT . '/shared/military-ui/footer.php';
+  }
+
+  public function validate(): bool
+  {
+    return Session::get('file_upload_solved') === true;
+  }
 }
