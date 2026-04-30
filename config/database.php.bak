@@ -1,0 +1,14 @@
+<?php
+
+// Database configuration for the secure core (php_security_labs_app)
+// Adjust credentials to match your .env or local setup.
+// Default WAMP settings: root user with no password.
+
+return [
+  'host'     => 'localhost',
+  'port'     => '3306',
+  'dbname'   => 'php_security_labs_app',   // main application DB
+  'user'     => 'root',                    // your MySQL user
+  'password' => '',                        // your MySQL password (empty for WAMP default)
+  'charset'  => 'utf8mb4',
+];

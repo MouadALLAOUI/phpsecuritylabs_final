@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Block direct access to sensitive directories
+
+RewriteRule ^(app|labs|database|storage)(/|$) - [F,L]
+
+# Serve existing files/directories directly
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
