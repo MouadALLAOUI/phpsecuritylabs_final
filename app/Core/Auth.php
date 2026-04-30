@@ -78,15 +78,94 @@ class Auth
   }
 
   /**
-   * Get all completed challenges for a user
+   * Get completed challenges for the current user with aggregated stats
+   * @return array ['xss' => ['count' => 2, 'last_solved' => '2025-04-30'], ...]
    */
-  public function getCompletedChallenges(int $userId): array
+  public function getCompletedChallenges(): array
   {
-    $sql = "SELECT lab_name, challenge, completed_at FROM lab_progress 
-                WHERE user_id = :user_id AND completed = 1 
-                ORDER BY completed_at DESC";
+    if (!$this->isAuthenticated()) return [];
+
+    $userId = $_SESSION['user_id'];
+
+    $sql = "SELECT lab_name, COUNT(*) as count, MAX(completed_at) as last_solved
+            FROM lab_progress
+            WHERE user_id = :user_id AND completed = 1
+            GROUP BY lab_name";
     $stmt = $this->db->query($sql, ['user_id' => $userId]);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $progress = [];
+    foreach ($results as $row) {
+      $progress[$row['lab_name']] = [
+        'count' => (int)$row['count'],
+        'last_solved' => $row['last_solved']
+      ];
+    }
+
+    return $progress;
+  }
+
+  /**
+   * Get leaderboard data
+   * @param int $limit
+   * @return array
+   */
+  public static function getLeaderboard(int $limit = 10): array
+  {
+    $db = Database::getInstance('app');
+    $pdo = $db->getConnection();
+
+    $sql = "SELECT u.id, u.username, u.role, COUNT(lp.id) as completed_count
+            FROM users u
+            LEFT JOIN lab_progress lp ON u.id = lp.user_id AND lp.completed = 1
+            GROUP BY u.id
+            ORDER BY completed_count DESC, u.created_at ASC
+            LIMIT :limit";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->execute();
+
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  /**
+   * Get all users with their progress (Admin only)
+   */
+  public static function getAllUsersProgress(): array
+  {
+    $db = Database::getInstance('app');
+    $pdo = $db->getConnection();
+
+    $sql = "SELECT u.id, u.username, u.codename, u.created_at,
+                   SUM(CASE WHEN lp.lab_name = 'xss' AND lp.completed = 1 THEN 1 ELSE 0 END) as xss_count,
+                   SUM(CASE WHEN lp.lab_name = 'sqli' AND lp.completed = 1 THEN 1 ELSE 0 END) as sqli_count,
+                   SUM(CASE WHEN lp.lab_name = 'file_upload' AND lp.completed = 1 THEN 1 ELSE 0 END) as upload_count,
+                   COUNT(CASE WHEN lp.completed = 1 THEN 1 END) as total_count
+            FROM users u
+            LEFT JOIN lab_progress lp ON u.id = lp.user_id
+            GROUP BY u.id
+            ORDER BY total_count DESC";
+
+    $stmt = $pdo->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  /**
+   * Reset a specific lab for a specific user (Admin only)
+   */
+  public static function resetUserLab(int $userId, string $labName): bool
+  {
+    if (!(new self())->isAdmin()) return false;
+
+    $db = Database::getInstance('app');
+    $pdo = $db->getConnection();
+
+    $sql = "DELETE FROM lab_progress WHERE user_id = :user_id AND lab_name = :lab_name";
+    $stmt = $pdo->prepare($sql);
+    return $stmt->execute([
+      'user_id' => $userId,
+      'lab_name' => $labName
+    ]);
   }
 
   /**

@@ -872,3 +872,58 @@ body.mil-body {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* TOAST NOTIFICATION */
+.mil-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: rgba(10, 15, 20, 0.95);
+  border: 1px solid #00ff7f;
+  border-radius: 4px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 0 20px rgba(0, 255, 127, 0.3);
+  z-index: 9999;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.mil-toast.hidden {
+  display: none;
+}
+
+.mil-toast .toast-icon {
+  color: #00ff7f;
+  font-size: 1.5rem;
+}
+
+.mil-toast .toast-message {
+  color: #e5e7eb;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+.mil-toast .toast-close {
+  color: #6b7280;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.mil-toast .toast-close:hover {
+  color: #ef4444;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

@@ -29,31 +29,50 @@
         All Labs
       </a>
 
+      <!-- Leaderboard -->
+      <a href="?page=leaderboard"
+        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition hover:bg-gray-800 hover:text-white">
+        <i class="fas fa-trophy w-5 h-5 mr-3 text-yellow-400"></i>
+        Leaderboard
+      </a>
+
       <!-- Divider -->
       <div class="pt-4 pb-2">
         <p class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Lab Modules</p>
       </div>
 
       <!-- XSS Lab -->
-      <a href="?page=xss"
+      <a href="?page=xss&lvl=1"
         class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition hover:bg-gray-800 hover:text-white">
         <i class="fas fa-code w-5 h-5 mr-3 text-yellow-400"></i>
         XSS Lab
       </a>
 
       <!-- SQLi Lab -->
-      <a href="?page=sqli"
+      <a href="?page=sqli&lvl=1"
         class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition hover:bg-gray-800 hover:text-white">
         <i class="fas fa-database w-5 h-5 mr-3 text-red-400"></i>
         SQL Injection Lab
       </a>
 
       <!-- File Upload Lab -->
-      <a href="?page=file_upload"
+      <a href="?page=file_upload&lvl=1"
         class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition hover:bg-gray-800 hover:text-white">
         <i class="fas fa-upload w-5 h-5 mr-3 text-green-400"></i>
         File Upload Lab
       </a>
+
+      <!-- Admin Panel (visible only to admins) -->
+      <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
+      <div class="pt-4 pb-2">
+        <p class="px-3 text-xs font-semibold uppercase tracking-wider text-red-500">Administration</p>
+      </div>
+      <a href="?page=admin"
+        class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition hover:bg-red-900 hover:text-white border border-red-800">
+        <i class="fas fa-user-shield w-5 h-5 mr-3 text-red-400"></i>
+        ADMIN PANEL
+      </a>
+      <?php endif; ?>
     </nav>
 
     <!-- Sidebar footer (optional) -->
