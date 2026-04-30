@@ -94,8 +94,10 @@ class AuthController
     Session::delete('xss_lvl1_solved');
     Session::delete('xss_lvl2_solved');
     Session::delete('xss_lvl3_solved');
-    Session::delete('sqli_solved');
-    Session::delete('file_upload_solved');
+    Session::delete('sqli_lvl1_solved');
+    Session::delete('sqli_lvl2_solved');
+    Session::delete('file_upload_lvl1_solved');
+    Session::delete('file_upload_lvl2_solved');
     Session::delete('uploaded_files');
 
     $_SESSION['reset_message'] = "Progress for $labName has been reset.";

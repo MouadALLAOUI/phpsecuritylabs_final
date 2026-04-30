@@ -61,13 +61,14 @@ include_once ROOT . '/shared/sidebar.php';
           <p class="text-gray-600 mt-1">Exploit vulnerable database queries to extract secrets from the military database.</p>
           <div class="mt-2 flex flex-wrap gap-2">
             <span class="px-2 py-1 bg-gray-100 text-xs rounded">Level 1: Auth Bypass</span>
+            <span class="px-2 py-1 bg-gray-100 text-xs rounded">Level 2: UNION Extraction</span>
           </div>
         </div>
         <a href="?page=sqli&lvl=1" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition text-sm">Start Lab</a>
       </div>
       <?php
       $sqliCompleted = $completedMap['sqli'] ?? [];
-      $sqliLevels = ['lvl1'];
+      $sqliLevels = ['lvl1', 'lvl2'];
       $sqliProgress = 0;
       foreach ($sqliLevels as $lvl) {
         if (isset($sqliCompleted[$lvl])) $sqliProgress++;
@@ -98,13 +99,14 @@ include_once ROOT . '/shared/sidebar.php';
           <p class="text-gray-600 mt-1">Bypass validation to upload malicious files and gain remote execution.</p>
           <div class="mt-2 flex flex-wrap gap-2">
             <span class="px-2 py-1 bg-gray-100 text-xs rounded">Level 1: Extension Bypass</span>
+            <span class="px-2 py-1 bg-gray-100 text-xs rounded">Level 2: MIME Spoofing</span>
           </div>
         </div>
         <a href="?page=file_upload&lvl=1" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition text-sm">Start Lab</a>
       </div>
       <?php
       $uploadCompleted = $completedMap['file_upload'] ?? [];
-      $uploadLevels = ['lvl1'];
+      $uploadLevels = ['lvl1', 'lvl2'];
       $uploadProgress = 0;
       foreach ($uploadLevels as $lvl) {
         if (isset($uploadCompleted[$lvl])) $uploadProgress++;

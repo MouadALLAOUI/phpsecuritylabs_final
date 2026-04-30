@@ -25,16 +25,16 @@ class Auth
     }
 
     // Seeded passwords are MD5 (for training only – do not use in production)
-    // if (md5($password) === $user['password']) {
-    // Regenerate session ID to prevent fixation
-    session_regenerate_id(true);
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['username'] = $user['username'];
-    $_SESSION['role'] = $user['role'];
-    $_SESSION['is_admin'] = (bool)$user['is_admin'];
-    $this->user = $user;
-    return true;
-    // }
+    if (md5($password) === $user['password']) {
+      // Regenerate session ID to prevent fixation
+      session_regenerate_id(true);
+      $_SESSION['user_id'] = $user['id'];
+      $_SESSION['username'] = $user['username'];
+      $_SESSION['role'] = $user['role'];
+      $_SESSION['is_admin'] = (bool)$user['is_admin'];
+      $this->user = $user;
+      return true;
+    }
 
     return false;
   }

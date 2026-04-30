@@ -1,12 +1,15 @@
 <?php
 /**
- * SQL Injection Lab - Level 1
+ * SQL Injection Lab - Level 1: Authentication Bypass
  * 
  * Vulnerability: Classic SQL Injection via unsanitized user input in WHERE clause
- * Attack Vector: Authentication bypass and data extraction
+ * Attack Vector: Authentication bypass using codename field
+ * Goal: Gain access to an agent account with clearance level 5 or higher
  * 
  * This challenge demonstrates SQL injection where user input is directly
  * concatenated into SQL queries without proper escaping or parameterization.
+ * 
+ * Target Table: agents (codename, real_name, clearance_level, unit_id, status)
  */
 
 namespace Labs\SQLi\Challenges;
@@ -26,7 +29,7 @@ class Level1AuthBypass extends BaseChallenge implements ChallengeInterface
         $this->db = Database::getInstance('labs');
         
         // Check if already solved via session
-        if (Session::get('sqli_solved') === true) {
+        if (Session::get('sqli_lvl1_solved') === true) {
             $this->completed = true;
         }
     }
@@ -34,52 +37,58 @@ class Level1AuthBypass extends BaseChallenge implements ChallengeInterface
     public function render(): string
     {
         ob_start();
-        include __DIR__ . '/views/auth_terminal.php';
+        include __DIR__ . '/../views/auth_terminal.php';
         return ob_get_clean();
     }
 
     public function handle(array $data): array
     {
-        $response = ['success' => false, 'message' => '', 'query' => '', 'result' => null];
+        $response = ['success' => false, 'message' => '', 'query' => '', 'result' => null, 'access_granted' => false];
 
-        if (isset($data['username']) || isset($data['password'])) {
-            $username = $data['username'] ?? '';
+        if (isset($data['codename']) || isset($data['password'])) {
+            $codename = $data['codename'] ?? '';
             $password = $data['password'] ?? '';
 
             // ⚠️ VULNERABLE: Direct string concatenation - NO SANITIZATION
-            $query = "SELECT * FROM agents WHERE username = '$username' AND password = '$password'";
+            // The agents table uses 'codename' not 'username', and has no password column
+            // Users must inject to bypass the password check entirely
+            $query = "SELECT id, codename, real_name, clearance_level, unit_id, status FROM agents WHERE codename = '$codename' AND status = '$password'";
             
             $response['query'] = $query; // Show the raw query for educational purposes
 
             try {
                 // Execute the vulnerable query
                 $stmt = $this->db->query($query);
-                $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+                $agent = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-                if ($user) {
+                if ($agent) {
                     $response['success'] = true;
+                    $response['access_granted'] = true;
                     $response['result'] = [
-                        'id' => $user['id'],
-                        'username' => $user['username'],
-                        'clearance' => $user['clearance_level'],
-                        'department' => $user['department']
+                        'id' => $agent['id'],
+                        'codename' => $agent['codename'],
+                        'real_name' => $agent['real_name'],
+                        'clearance_level' => $agent['clearance_level'],
+                        'unit_id' => $agent['unit_id'],
+                        'status' => $agent['status']
                     ];
                     
-                    // Check if they extracted admin access (clearance level 5)
-                    if ($user['clearance_level'] >= 5) {
+                    // Check if they extracted high-clearance access (level 5 = top secret)
+                    if ($agent['clearance_level'] >= 5) {
                         $this->markCompleted();
-                        Session::set('sqli_solved', true);
+                        Session::set('sqli_lvl1_solved', true);
                         $this->completed = true;
-                        $response['message'] = 'ACCESS GRANTED: Administrative privileges obtained. Challenge complete.';
+                        $response['message'] = '★★★ ACCESS GRANTED: TOP SECRET clearance verified. Agent ' . htmlspecialchars($agent['codename']) . ' authenticated. Challenge Complete! ★★★';
                     } else {
-                        $response['message'] = 'ACCESS GRANTED: Welcome, Agent ' . htmlspecialchars($user['username']);
+                        $response['message'] = 'ACCESS GRANTED: Welcome, Agent ' . htmlspecialchars($agent['codename']) . '. Clearance Level: ' . $agent['clearance_level'] . '. Note: Higher clearance (Level 5+) required for full access.';
                     }
                 } else {
-                    $response['message'] = 'ACCESS DENIED: Invalid credentials';
+                    $response['message'] = 'ACCESS DENIED: Invalid credentials or agent not found';
                 }
             } catch (\PDOException $e) {
                 $response['message'] = 'SQL ERROR: ' . $e->getMessage();
                 $response['success'] = false;
+                $response['access_granted'] = false;
             }
         }
 
@@ -88,9 +97,8 @@ class Level1AuthBypass extends BaseChallenge implements ChallengeInterface
 
     public function validate(array $data): bool
     {
-        // Validation is handled in handle() by checking clearance level
-        // Also check session flag
-        if (Session::get('sqli_solved') === true) {
+        // Check session flag set during handle()
+        if (Session::get('sqli_lvl1_solved') === true) {
             return true;
         }
         return false;
@@ -98,16 +106,16 @@ class Level1AuthBypass extends BaseChallenge implements ChallengeInterface
 
     public function getHint(): string
     {
-        return "SQL Injection allows you to manipulate database queries. Try using a classic payload like ' OR '1'='1' -- to bypass authentication. To extract all records, use UNION-based injection.";
+        return "The query checks codename AND status fields. Use SQL injection to bypass the status check. Try: GHOST' -- or use ' OR '1'='1' -- to return all agents. To complete the challenge, access an agent with clearance level 5 or higher.";
     }
 
     public function getTitle(): string
     {
-        return "Authentication Terminal";
+        return "Secure Authentication Gateway";
     }
 
     public function getDescription(): string
     {
-        return "Bypass the authentication system to gain unauthorized access to classified agent records.";
+        return "Bypass the authentication terminal to gain unauthorized access to classified agent records. Extract credentials for a Level 5 cleared agent.";
     }
 }
