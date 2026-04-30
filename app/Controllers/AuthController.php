@@ -90,10 +90,13 @@ class AuthController
     $sql = "DELETE FROM lab_progress WHERE user_id = :user_id AND lab_name = :lab_name";
     $this->db->query($sql, ['user_id' => $userId, 'lab_name' => $labName]);
 
-    // Also clear any session flags used for challenges (optional)
+    // Also clear any session flags used for challenges
     Session::delete('xss_lvl1_solved');
     Session::delete('xss_lvl2_solved');
     Session::delete('xss_lvl3_solved');
+    Session::delete('sqli_solved');
+    Session::delete('file_upload_solved');
+    Session::delete('uploaded_files');
 
     $_SESSION['reset_message'] = "Progress for $labName has been reset.";
     header('Location: ?page=labs');

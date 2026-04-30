@@ -27,7 +27,7 @@ if (isset($_GET['cookie'])) {
 
   // For level 3, redirect back to challenge with success status
   if ($level === '3') {
-    header('Location: /challenge.php?page=lvl3&status=complete');
+    header('Location: /?page=xss&lvl=3&status=complete');
     exit;
   }
 

