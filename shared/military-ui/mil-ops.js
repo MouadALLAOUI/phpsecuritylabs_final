@@ -6,7 +6,7 @@
 // ============================================
 // SYSTEM INITIALIZATION
 // ============================================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   initializeSystem();
   startSystemLogs();
   updateSystemTime();
@@ -19,14 +19,14 @@ function updateSystemTime() {
   const timeElement = document.getElementById('systemTime');
   if (timeElement) {
     const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
+    const timeString = now.toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
     timeElement.textContent = timeString;
-    
+
     // Update footer timestamp
     const footerTimestamp = document.getElementById('footerTimestamp');
     if (footerTimestamp) {
@@ -67,10 +67,10 @@ const logColors = ['text-green', 'text-blue', 'text-amber'];
 function startSystemLogs() {
   const logContainer = document.getElementById('systemLogMini');
   if (!logContainer) return;
-  
+
   // Add initial log entry
   addLogEntry(logContainer, 'SYSTEM INITIALIZED', 'text-green');
-  
+
   // Add random logs periodically
   setInterval(() => {
     const randomMessage = systemLogMessages[Math.floor(Math.random() * systemLogMessages.length)];
@@ -81,24 +81,24 @@ function startSystemLogs() {
 
 function addLogEntry(container, message, colorClass = 'text-dim') {
   const now = new Date();
-  const timeString = now.toLocaleTimeString('en-US', { 
-    hour12: false, 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit' 
+  const timeString = now.toLocaleTimeString('en-US', {
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
   });
-  
+
   const logEntry = document.createElement('div');
   logEntry.className = 'log-entry';
   logEntry.innerHTML = `<span class="log-time ${colorClass}">${timeString}</span> ${message}`;
-  
+
   container.appendChild(logEntry);
-  
+
   // Keep only last 10 entries
   while (container.children.length > 10) {
     container.removeChild(container.firstChild);
   }
-  
+
   // Auto-scroll to bottom
   container.scrollTop = container.scrollHeight;
 }
@@ -109,7 +109,7 @@ function addLogEntry(container, message, colorClass = 'text-dim') {
 function showLoading(text = 'ESTABLISHING SECURE CHANNEL...') {
   const overlay = document.getElementById('loadingOverlay');
   const loadingText = document.getElementById('loadingText');
-  
+
   if (overlay) {
     if (loadingText) loadingText.textContent = text;
     overlay.classList.remove('hidden');
@@ -126,9 +126,9 @@ function hideLoading() {
 // Simulate loading with custom messages
 function simulateLoading(messages, duration = 2000, callback = null) {
   let index = 0;
-  
+
   showLoading(messages[0]);
-  
+
   const interval = setInterval(() => {
     index++;
     if (index < messages.length) {
@@ -149,11 +149,11 @@ function simulateLoading(messages, duration = 2000, callback = null) {
 function showSystemAlert(message, type = 'warning') {
   const modal = document.getElementById('systemAlert');
   const alertBody = document.getElementById('alertBody');
-  
+
   if (modal && alertBody) {
     alertBody.textContent = message;
     modal.classList.remove('hidden');
-    
+
     // Play alert sound (optional, commented out by default)
     // playAlertSound();
   }
@@ -172,20 +172,20 @@ function closeSystemAlert() {
 function appendToTerminal(terminalId, text, type = 'normal') {
   const terminal = document.getElementById(terminalId);
   if (!terminal) return;
-  
-  const timestamp = new Date().toLocaleTimeString('en-US', { 
-    hour12: false, 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit' 
+
+  const timestamp = new Date().toLocaleTimeString('en-US', {
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
   });
-  
+
   const line = document.createElement('div');
   line.className = 'terminal-line';
-  
+
   let prefix = '';
   let colorClass = '';
-  
+
   switch (type) {
     case 'error':
       prefix = '[ERROR]';
@@ -209,7 +209,7 @@ function appendToTerminal(terminalId, text, type = 'normal') {
       prefix = '[LOG]';
       colorClass = 'text-green';
   }
-  
+
   line.innerHTML = `<span class="${colorClass}">${timestamp} ${prefix}</span> ${escapeHtml(text)}`;
   terminal.appendChild(line);
   terminal.scrollTop = terminal.scrollHeight;
@@ -278,19 +278,19 @@ function unlockMission(missionId) {
 function interceptFormSubmit(formSelector, callback) {
   const form = document.querySelector(formSelector);
   if (form) {
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
-      
+
       // Show loading state
       showLoading('PROCESSING REQUEST...');
-      
+
       // Simulate network delay
       setTimeout(() => {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
-        
+
         hideLoading();
-        
+
         if (callback) {
           callback(data);
         }
@@ -317,13 +317,13 @@ function triggerRandomSecurityAlert(delay = 30000) {
   setTimeout(() => {
     const alert = securityAlerts[Math.floor(Math.random() * securityAlerts.length)];
     showSystemAlert(alert, 'danger');
-    
+
     // Add to system log
     const logContainer = document.getElementById('systemLogMini');
     if (logContainer) {
       addLogEntry(logContainer, `SECURITY: ${alert}`, 'text-red');
     }
-    
+
     // Recursively schedule next alert
     triggerRandomSecurityAlert(delay + Math.random() * 30000);
   }, delay);
@@ -338,10 +338,10 @@ function triggerRandomSecurityAlert(delay = 30000) {
 function typeWriter(elementId, text, speed = 30, callback = null) {
   const element = document.getElementById(elementId);
   if (!element) return;
-  
+
   let i = 0;
   element.textContent = '';
-  
+
   function type() {
     if (i < text.length) {
       element.textContent += text.charAt(i);
@@ -351,7 +351,7 @@ function typeWriter(elementId, text, speed = 30, callback = null) {
       callback();
     }
   }
-  
+
   type();
 }
 
@@ -364,20 +364,42 @@ function triggerGlitch(elementSelector) {
     element.style.animation = 'none';
     element.offsetHeight; /* trigger reflow */
     element.style.animation = 'flicker 0.1s linear 3';
-    
+
     setTimeout(() => {
       element.style.animation = '';
     }, 300);
   }
 }
 
+// Toast Notification System
+function showToast(message) {
+  const toast = document.getElementById('toastNotification');
+  const toastMessage = document.getElementById('toastMessage');
+
+  if (toast && toastMessage) {
+    toastMessage.textContent = message;
+    toast.classList.remove('hidden');
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      closeToast();
+    }, 3000);
+  }
+}
+
+function closeToast() {
+  const toast = document.getElementById('toastNotification');
+  if (toast) {
+    toast.classList.add('hidden');
+  }
+}
 // ============================================
 // INITIALIZE SYSTEM
 // ============================================
 function initializeSystem() {
-  console.log('%c MIL-OPS CONTROL SYSTEM INITIALIZED ', 
+  console.log('%c MIL-OPS CONTROL SYSTEM INITIALIZED ',
     'background: #00ff41; color: #0b0f14; font-weight: bold; padding: 5px;');
-  
+
   // Add startup log entry
   const logContainer = document.getElementById('systemLogMini');
   if (logContainer) {

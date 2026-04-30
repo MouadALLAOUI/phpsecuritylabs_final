@@ -56,7 +56,7 @@ class AuthController
       exit;
     }
     $user = $this->auth->getUser();
-    $completed = $this->auth->getCompletedChallenges($user['id']);
+    $completed = $this->auth->getCompletedChallenges();
     include_once ROOT . '/app/Views/profile.php';
   }
 
@@ -67,13 +67,50 @@ class AuthController
       exit;
     }
     $user = $this->auth->getUser();
-    $completed = $this->auth->getCompletedChallenges($user['id']);
+    $completed = $this->auth->getCompletedChallenges();
     // Group completed challenges by lab for quick stats
-    $completedMap = [];
-    foreach ($completed as $c) {
-      $completedMap[$c['lab_name']][$c['challenge']] = true;
-    }
+    // $completedMap = [];
+    // foreach ($completed as $c) {
+    //   $completedMap[$c['lab_name']][$c['challenge']] = true;
+    // }
     include_once ROOT . '/app/Views/labs.php';
+  }
+
+
+  public function showLeaderboard(): void
+  {
+    $leaderboard = Auth::getLeaderboard(10);
+    include_once ROOT . '/app/Views/leaderboard.php';
+  }
+
+  public function showAdminDashboard(): void
+  {
+    if (!$this->auth->isAdmin()) {
+      header('Location: ?page=home');
+      exit;
+    }
+    $users = Auth::getAllUsersProgress();
+    include_once ROOT . '/app/Views/admin/dashboard.php';
+  }
+
+  public function handleAdminReset(): void
+  {
+    if (!$this->auth->isAdmin()) {
+      http_response_code(403);
+      echo 'Unauthorized';
+      exit;
+    }
+
+    $userId = (int)($_POST['user_id'] ?? 0);
+    $labName = $_POST['lab_name'] ?? '';
+
+    if ($userId && $labName) {
+      Auth::resetUserLab($userId, $labName);
+      $_SESSION['admin_message'] = "Lab progress reset for user ID $userId.";
+    }
+
+    header('Location: ?page=admin');
+    exit;
   }
 
   /**

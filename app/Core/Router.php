@@ -26,6 +26,8 @@ class Router
     $page = $_GET['page'] ?? 'home';
     $action = $_GET['action'] ?? null;
     $authController = new AuthController();
+
+    // Handle authentication routes
     if ($page === 'login') {
       if ($action === 'do') {
         $authController->handleLogin();
@@ -50,6 +52,23 @@ class Router
         return;
       }
       $authController->showLabs();
+      return;
+    }
+
+    if ($page === 'leaderboard') {
+      $authController->showLeaderboard();
+      return;
+    }
+    if ($page === 'admin') {
+      if ($action === 'reset') {
+        $authController->handleAdminReset();
+      } else {
+        $authController->showAdminDashboard();
+      }
+      return;
+    }
+    if ($page === 'patch_xss' || $page === 'patch_sqli' || $page === 'patch_fileupload') {
+      $this->renderPatchReport($page);
       return;
     }
 
@@ -89,5 +108,18 @@ class Router
         $this->routes[$lab] = "/labs/$lab/index.php";
       }
     }
+  }
+
+  private function renderPatchReport(string $page): void
+  {
+    $file = dirname(__DIR__, 2) . "/app/Views/{$page}.php";
+
+    if (!file_exists($file)) {
+      http_response_code(404);
+      echo 'Patch report not found';
+      return;
+    }
+
+    require $file;
   }
 }

@@ -33,12 +33,34 @@
   </div>
 </div>
 
+<!-- TOAST NOTIFICATION -->
+<div id="toastNotification" class="mil-toast hidden">
+  <div class="toast-icon">
+    <i class="fas fa-check-circle"></i>
+  </div>
+  <div class="toast-message" id="toastMessage">
+    Challenge completed! Progress saved.
+  </div>
+  <div class="toast-close" onclick="closeToast()">
+    <i class="fas fa-times"></i>
+  </div>
+</div>
+
 <!-- Military UI JavaScript -->
 <?php
 $baseUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
 if ($baseUrl === '/') $baseUrl = '';
 ?>
 <script src="<?= $baseUrl ?>/shared/military-ui/mil-ops.js"></script>
+
+<?php if (isset($_SESSION['toast_message'])): ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  showToast(<?= json_encode($_SESSION['toast_message']) ?>);
+  <?php unset($_SESSION['toast_message']); ?>
+});
+</script>
+<?php endif; ?>
 
 <footer class="mil-footer">
   <div class="footer-content">
