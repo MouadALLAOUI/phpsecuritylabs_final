@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SQL Injection Lab - Level 1: Authentication Bypass
  * 
@@ -14,108 +15,157 @@
 
 namespace Labs\SQLi\Challenges;
 
-use App\Core\ChallengeInterface;
 use App\Core\BaseChallenge;
 use App\Core\Database;
 use App\Core\Session;
 
-class Level1AuthBypass extends BaseChallenge implements ChallengeInterface
+class Level1AuthBypass extends BaseChallenge
 {
-    private $completed = false;
-    private $db;
+    private Database $db;
+    private string $codename = '';
+    private string $password = '';
+    private string $queryResult = '';
+    private bool $attempted = false;
+    private array $queryLog = [];
 
     public function __construct()
     {
         $this->db = Database::getInstance('labs');
-        
-        // Check if already solved via session
+      
         if (Session::get('sqli_lvl1_solved') === true) {
             $this->completed = true;
         }
     }
 
-    public function render(): string
+    public function handle(): void
     {
-        ob_start();
-        include __DIR__ . '/../views/auth_terminal.php';
-        return ob_get_clean();
-    }
-
-    public function handle(array $data): array
-    {
-        $response = ['success' => false, 'message' => '', 'query' => '', 'result' => null, 'access_granted' => false];
-
-        if (isset($data['codename']) || isset($data['password'])) {
-            $codename = $data['codename'] ?? '';
-            $password = $data['password'] ?? '';
+        if ($this->isPost()) {
+            $this->codename = $_POST['codename'] ?? '';
+            $this->password = $_POST['password'] ?? '';
+            $this->attempted = true;
 
             // ⚠️ VULNERABLE: Direct string concatenation - NO SANITIZATION
             // The agents table uses 'codename' not 'username', and has no password column
-            // Users must inject to bypass the password check entirely
-            $query = "SELECT id, codename, real_name, clearance_level, unit_id, status FROM agents WHERE codename = '$codename' AND status = '$password'";
-            
-            $response['query'] = $query; // Show the raw query for educational purposes
+            // Users must inject to bypass the status check entirely
+            $query = "SELECT id, codename, real_name, clearance_level, unit_id, status FROM agents WHERE codename = '{$this->codename}' AND status = '{$this->password}'";
+
+            $this->queryLog[] = [
+                'timestamp' => date('H:i:s'),
+                'query' => $query
+            ];
 
             try {
-                // Execute the vulnerable query
                 $stmt = $this->db->query($query);
                 $agent = $stmt->fetch(\PDO::FETCH_ASSOC);
 
                 if ($agent) {
-                    $response['success'] = true;
-                    $response['access_granted'] = true;
-                    $response['result'] = [
-                        'id' => $agent['id'],
-                        'codename' => $agent['codename'],
-                        'real_name' => $agent['real_name'],
-                        'clearance_level' => $agent['clearance_level'],
-                        'unit_id' => $agent['unit_id'],
-                        'status' => $agent['status']
-                    ];
+                    $this->queryResult = "ACCESS GRANTED\n\nAgent: " . htmlspecialchars($agent['codename']) . 
+                                         "\nReal Name: " . htmlspecialchars($agent['real_name']) . 
+                                         "\nClearance Level: " . $agent['clearance_level'] . 
+                                         "\nUnit ID: " . $agent['unit_id'] . 
+                                         "\nStatus: " . $agent['status'];
                     
-                    // Check if they extracted high-clearance access (level 5 = top secret)
                     if ($agent['clearance_level'] >= 5) {
-                        $this->markCompleted();
+                        $this->queryResult .= "\n\n★★★ TOP SECRET ACCESS OBTAINED ★★★\nChallenge complete!";
+                        $this->markCompleted('sqli', 'lvl1');
                         Session::set('sqli_lvl1_solved', true);
                         $this->completed = true;
-                        $response['message'] = '★★★ ACCESS GRANTED: TOP SECRET clearance verified. Agent ' . htmlspecialchars($agent['codename']) . ' authenticated. Challenge Complete! ★★★';
-                    } else {
-                        $response['message'] = 'ACCESS GRANTED: Welcome, Agent ' . htmlspecialchars($agent['codename']) . '. Clearance Level: ' . $agent['clearance_level'] . '. Note: Higher clearance (Level 5+) required for full access.';
                     }
                 } else {
-                    $response['message'] = 'ACCESS DENIED: Invalid credentials or agent not found';
+                    $this->queryResult = "ACCESS DENIED\nInvalid credentials.\n[ATTEMPT LOGGED]";
                 }
             } catch (\PDOException $e) {
-                $response['message'] = 'SQL ERROR: ' . $e->getMessage();
-                $response['success'] = false;
-                $response['access_granted'] = false;
+                $this->queryResult = "SQL ERROR: " . $e->getMessage();
             }
         }
-
-        return $response;
     }
 
-    public function validate(array $data): bool
+    public function render(): void
     {
-        // Check session flag set during handle()
-        if (Session::get('sqli_lvl1_solved') === true) {
-            return true;
-        }
-        return false;
+        include_once ROOT . '/shared/military-ui/header.php';
+?>
+<div class="mission-header">
+    <div class="mission-title">
+        <i class="fas fa-database"></i>
+        <span>MISSION: DATABASE BREACH</span>
+    </div>
+    <div class="mission-grid">
+        <div class="mission-stat">
+            <div class="stat-label">OBJECTIVE</div>
+            <div class="stat-value">BYPASS AUTHENTICATION</div>
+        </div>
+        <div class="mission-stat">
+            <div class="stat-label">TARGET</div>
+            <div class="stat-value warning">AGENTS TABLE</div>
+        </div>
+        <div class="mission-stat">
+            <div class="stat-label">CLEARANCE</div>
+            <div class="stat-value danger">LEVEL 1</div>
+        </div>
+    </div>
+</div>
+
+<div class="terminal-panel">
+    <div class="terminal-header">
+        <i class="fas fa-terminal"></i>
+        <span>AUTHENTICATION TERMINAL</span>
+    </div>
+    <div class="terminal-body">
+        <form method="POST">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-family: monospace; margin-bottom: 5px;">AGENT CODENAME</label>
+                <input type="text" name="codename" class="mil-input" 
+                       placeholder="Enter codename (e.g., GHOST)" 
+                       value="<?= htmlspecialchars($this->codename) ?>">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-family: monospace; margin-bottom: 5px;">STATUS CODE</label>
+                <input type="password" name="password" class="mil-input" 
+                       placeholder="Enter status code...">
+            </div>
+            <button type="submit" class="mil-button">AUTHENTICATE</button>
+        </form>
+
+        <?php if ($this->attempted): ?>
+        <div class="output-terminal" style="margin-top: 20px; white-space: pre-wrap;">
+            <?= htmlspecialchars($this->queryResult) ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if (!empty($this->queryLog)): ?>
+        <div class="output-terminal" style="margin-top: 20px; background: #000; font-size: 12px;">
+            <strong>QUERY LOG:</strong><br>
+            <?php foreach ($this->queryLog as $log): ?>
+            [<?= $log['timestamp'] ?>] <?= htmlspecialchars($log['query']) ?><br>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <div class="mil-hint-box" style="margin-top: 20px;">
+            <strong>INTELLIGENCE:</strong> Try <code>' OR '1'='1' --</code> in the codename field to bypass status check.  
+            To complete the challenge, obtain an agent with clearance level 5.
+        </div>
+    </div>
+</div>
+
+<?php if ($this->completed): ?>
+<div class="terminal-panel" style="border-color: #00ff41;">
+    <div class="terminal-header" style="background: rgba(0,255,65,0.1);">
+        <i class="fas fa-check-circle text-green"></i>
+        <span class="text-green">MISSION ACCOMPLISHED</span>
+    </div>
+    <div class="terminal-body">
+        <p class="text-green">SQL Injection successful. Top‑secret access granted.</p>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php
+        include_once ROOT . '/shared/military-ui/footer.php';
     }
 
-    public function getHint(): string
+    public function validate(): bool
     {
-        return "The query checks codename AND status fields. Use SQL injection to bypass the status check. Try: GHOST' -- or use ' OR '1'='1' -- to return all agents. To complete the challenge, access an agent with clearance level 5 or higher.";
-    }
-
-    public function getTitle(): string
-    {
-        return "Secure Authentication Gateway";
-    }
-
-    public function getDescription(): string
-    {
-        return "Bypass the authentication terminal to gain unauthorized access to classified agent records. Extract credentials for a Level 5 cleared agent.";
+        return Session::get('sqli_lvl1_solved') === true;
     }
 }

@@ -1,125 +1,175 @@
 <?php
+
 /**
  * MIL-OPS CONTROL SYSTEM - Military Theme Header
- * Replaces standard header for lab interfaces
- * Each lab becomes a classified mission terminal
+ * With dynamic sidebar configuration
  */
 
 // Generate dynamic agent codename
 if (!isset($_SESSION['agent_codename'])) {
-    $codenames = ['GHOST', 'VIPER', 'PHANTOM', 'ECHO', 'RAVEN', 'SPECTRE', 'TITAN', 'FALCON'];
-    $_SESSION['agent_codename'] = $codenames[array_rand($codenames)];
+  $codenames = ['GHOST', 'VIPER', 'PHANTOM', 'ECHO', 'RAVEN', 'SPECTRE', 'TITAN', 'FALCON'];
+  $_SESSION['agent_codename'] = $codenames[array_rand($codenames)];
 }
 $agentCodename = $_SESSION['agent_codename'] ?? 'OPERATOR';
 
-// Clearance levels
-$clearanceLevels = ['LEVEL 1', 'LEVEL 2', 'LEVEL 3', 'LEVEL 4', 'TOP SECRET'];
 $currentClearance = $_SESSION['clearance_level'] ?? 'LEVEL 2';
+
+// Detect base URL for assets
+$baseUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+if ($baseUrl === '/') $baseUrl = '';
+
+// ============================================
+// SIDEBAR CONFIGURATION - EASY TO EXTEND
+// ============================================
+$sidebarMenu = [
+  'dashboard' => [
+    'page' => 'home',
+    'lvl' => null,
+    'title' => 'DASHBOARD',
+    'icon' => 'tachometer-alt',
+    'badge' => null
+  ],
+  'agents' => [
+    'page' => 'sqli',
+    'lvl' => 1,
+    'title' => 'AGENTS',
+    'icon' => 'user-secret',
+    'badge' => 'SQLi'
+  ],
+  'cases' => [
+    'page' => 'xss',
+    'lvl' => 1,
+    'title' => 'CASES',
+    'icon' => 'folder-open',
+    'badge' => 'XSS'
+  ],
+  'communications' => [
+    'page' => 'xss',
+    'lvl' => 3,
+    'title' => 'COMMUNICATIONS',
+    'icon' => 'envelope',
+    'badge' => 'DOM XSS'
+  ],
+  'reports' => [
+    'page' => 'xss',
+    'lvl' => 2,
+    'title' => 'REPORTS',
+    'icon' => 'file-alt',
+    'badge' => 'Stored XSS'
+  ],
+  'secrets' => [
+    'page' => 'sqli',
+    'lvl' => 2,  // future UNION level
+    'title' => 'SECRETS',
+    'icon' => 'key',
+    'badge' => 'SQLi Union'
+  ],
+  'audit' => [
+    'page' => 'xss_admin_reports',
+    'lvl' => null,
+    'title' => 'AUDIT LOGS',
+    'icon' => 'history',
+    'badge' => 'Admin Panel'
+  ]
+];
+
+// Helper to check if a menu item is active
+function isMenuItemActive($item)
+{
+  $currentPage = $_GET['page'] ?? 'home';
+  $currentLvl = $_GET['lvl'] ?? null;
+
+  if ($item['page'] === 'xss_admin_reports') {
+    return $currentPage === 'xss_admin_reports';
+  }
+  return ($currentPage === $item['page'] && ($item['lvl'] === null || $currentLvl == $item['lvl']));
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-mil-dark">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MIL-OPS CONTROL SYSTEM | Classified Terminal</title>
-  
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-    integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-  
-  <!-- Military UI Styles -->
-  <link rel="stylesheet" href="/shared/military-ui/mil-ops.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="<?= $baseUrl ?>/shared/military-ui/mil-ops.css">
+  <style>
+  body.mil-body {
+    background: #0b0f14;
+    color: #e0e0e0;
+    margin: 0;
+    font-family: 'Courier New', monospace;
+  }
+
+  .mil-top-bar {
+    background: #111820;
+    border-bottom: 2px solid #00ff41;
+  }
+
+  .mil-sidebar {
+    background: #070a0d;
+  }
+
+  .mil-main-content {
+    margin-left: 260px;
+    padding: 20px;
+  }
+  </style>
 </head>
 
 <body class="mil-body">
-  <!-- CRT Scanline Overlay -->
   <div class="crt-overlay"></div>
-  
-  <!-- TOP BAR - MIL-OPS CONTROL SYSTEM -->
+
   <header class="mil-top-bar">
     <div class="top-bar-left">
       <i class="fas fa-shield-haltered mil-icon"></i>
       <span class="system-title">MIL-OPS CONTROL SYSTEM</span>
-      <span class="connection-status secure">
-        <i class="fas fa-lock"></i> SECURE LINK ACTIVE
-      </span>
+      <span class="connection-status secure"><i class="fas fa-lock"></i> SECURE LINK ACTIVE</span>
     </div>
-    
     <div class="top-bar-right">
-      <div class="agent-info">
-        <span class="agent-label">AGENT:</span>
-        <span class="agent-codename"><?= htmlspecialchars($agentCodename) ?></span>
-      </div>
-      <div class="clearance-info">
-        <span class="clearance-label">CLEARANCE:</span>
-        <span class="clearance-level"><?= htmlspecialchars($currentClearance) ?></span>
-      </div>
+      <div class="agent-info"><span class="agent-label">AGENT:</span><span
+          class="agent-codename"><?= htmlspecialchars($agentCodename) ?></span></div>
+      <div class="clearance-info"><span class="clearance-label">CLEARANCE:</span><span
+          class="clearance-level"><?= htmlspecialchars($currentClearance) ?></span></div>
       <div class="system-time" id="systemTime">--:--:--</div>
     </div>
   </header>
-  
-  <!-- SIDEBAR - MISSION SELECTOR -->
+
   <aside class="mil-sidebar">
-    <div class="sidebar-header">
-      <i class="fas fa-crosshairs"></i>
-      <span>MISSION SELECTOR</span>
-    </div>
-    
-    <nav class="mission-nav">
-      <a href="?page=home" class="mission-link">
-        <i class="fas fa-chevron-right"></i>
-        <span>COMMAND CENTER</span>
-      </a>
-      
-      <div class="nav-section-title">ACTIVE OPERATIONS</div>
-      
-      <a href="?page=xss" class="mission-link active">
-        <i class="fas fa-code"></i>
-        <span>SIGNAL INTERCEPT (XSS)</span>
-        <span class="mission-status status-active"></span>
-      </a>
-      
-      <a href="?page=sqli" class="mission-link">
-        <i class="fas fa-database"></i>
-        <span>DATABASE BREACH (SQLi)</span>
-        <span class="mission-status status-active"></span>
-      </a>
-      
-      <a href="?page=file_upload" class="mission-link">
-        <i class="fas fa-upload"></i>
-        <span>INTEL UPLOAD (File)</span>
-        <span class="mission-status status-active"></span>
-      </a>
-      
-      <div class="nav-section-title">CLASSIFIED OPERATIONS</div>
-      
-      <a href="#" class="mission-link locked">
-        <i class="fas fa-lock"></i>
-        <span>CSRF ATTACK</span>
-        <span class="mission-status status-locked"></span>
-      </a>
-      
-      <a href="#" class="mission-link locked">
-        <i class="fas fa-lock"></i>
-        <span>SESSION HIJACK</span>
-        <span class="mission-status status-locked"></span>
-      </a>
-      
-      <a href="#" class="mission-link locked">
-        <i class="fas fa-lock"></i>
-        <span>XXE INJECTION</span>
-        <span class="mission-status status-locked"></span>
-      </a>
+    <div class="sidebar-header"><i class="fas fa-crosshairs"></i><span>MISSION SELECTOR</span></div>
+    <nav class="nav-menu">
+      <ul class="nav-list">
+        <?php foreach ($sidebarMenu as $item): ?>
+        <?php
+          // Build URL
+          if ($item['page'] === 'xss_admin_reports') {
+            $url = $baseUrl . '/?page=xss_admin_reports';
+          } else {
+            $url = $baseUrl . '/?page=' . $item['page'];
+            if ($item['lvl'] !== null) {
+              $url .= '&lvl=' . $item['lvl'];
+            }
+          }
+          $isActive = isMenuItemActive($item);
+          ?>
+        <li class="nav-item <?= $isActive ? 'active' : '' ?>">
+          <a href="<?= $url ?>">
+            <i class="fas fa-<?= $item['icon'] ?>"></i>
+            <?= $item['title'] ?>
+            <?php if ($item['badge']): ?>
+            <span class="badge"><?= $item['badge'] ?></span>
+            <?php endif; ?>
+          </a>
+        </li>
+        <?php endforeach; ?>
+      </ul>
     </nav>
-    
     <div class="sidebar-footer">
-      <div class="system-log-mini" id="systemLogMini">
-        <div class="log-entry"><span class="log-time">--:--:--</span> SYSTEM INITIALIZED</div>
-      </div>
+      <div class="system-log-mini" id="systemLogMini"></div>
       <p class="classification-marking">UNAUTHORIZED ACCESS PROHIBITED</p>
     </div>
   </aside>
-  
-  <!-- MAIN CONTENT AREA -->
+
   <main class="mil-main-content">
