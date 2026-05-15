@@ -251,3 +251,29 @@ All items in todo.md "Improvement Ideas & Suggestions" section marked [x]:
 
 ---
 *Session Complete: All improvement ideas addressed or scaffolded*
+
+## BUG 4: Language Switcher Fix - DONE
+**Files Changed:**
+- `lang/Translator.php` - Modified constructor to check cookie first, then session, then default to 'en'. Updated setLanguage() to store in both $_SESSION['lang'] and cookie (30-day expiry). Removed support for 'es' and 'de', kept only 'en' and 'fr'.
+- `shared/header.php` - Updated language selector dropdown to check both $_SESSION['lang'] and $_COOKIE['lang']. Removed 'es' option. Fixed toggleTheme() function to use classList instead of data-theme attribute for proper theme switching between military/light/dark.
+- `shared/military-ui/header.php` - Updated language selector to check both $_SESSION['lang'] and $_COOKIE['lang']. Removed 'es' option.
+- `lang/es.json` - DELETED as part of Spanish language removal.
+
+**Why:** Language preference was resetting because it was only stored in session. Now persists via cookie for 30 days. Cookie is checked first on page load, then session, then defaults to 'en'.
+
+## CLEANUP: Spanish Language Removal - DONE
+**Files Changed:**
+- `lang/es.json` - Deleted
+- `lang/Translator.php` - Removed 'es' and 'de' from supported languages array and getAvailableLanguages()
+- `shared/header.php` - Removed 'es' option from language selector dropdown
+- `shared/military-ui/header.php` - Removed 'es' option from language selector dropdown
+
+**Why:** Project requirements specified keeping only English and French.
+
+## BUG 5: Theme Switching Text Readability Fix - DONE
+**Files Changed:**
+- `shared/military-ui/mil-ops.css` - Added explicit color definitions for ALL theme elements (light-theme and dark-theme classes). Each theme now explicitly sets: --text-primary, --text-secondary, --text-dim, --mil-green, --mil-green-dim, --mil-amber, --mil-amber-dim, --mil-red, --mil-red-dim, --mil-blue, --mil-blue-dim, --border-color. Added specific rules for .mil-top-bar, .mil-sidebar, .nav-item a, .nav-item a i, .badge, .system-title, .agent-label, .clearance-label, and .connection-status to ensure text is always readable regardless of theme.
+- `shared/header.php` - Fixed toggleTheme() JavaScript function to use classList.add/remove instead of data-theme attribute. Cycle order: military → light → dark → military. Properly adds 'light-theme' or 'dark-theme' class to body element (military is default with no class).
+
+**Why:** Theme switching was causing unreadable text because CSS rules relied on inheritance and didn't explicitly set text colors for all elements in each theme. Now every theme explicitly defines all color variables and element-specific colors to prevent any combination from producing same-color text on background.
+
