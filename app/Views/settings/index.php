@@ -19,9 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
   
   if (isset($_POST['language'])) {
-    Session::set('language', $_POST['language']);
-    // Persist to cookie for cross-session persistence
-    setcookie('language', $_POST['language'], time() + (30 * 24 * 60 * 60), '/');
+    $lang = $_POST['language'];
+    // Validate language is only 'en' or 'fr'
+    if (!in_array($lang, ['en', 'fr'])) {
+      $lang = 'en';
+    }
+    Session::set('lang', $lang);
+    // Persist to cookie for cross-session persistence (30 days)
+    setcookie('lang', $lang, time() + (30 * 24 * 60 * 60), '/');
   }
   
   $successMessage = "Settings saved successfully!";
@@ -29,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Get current settings (check cookies first, then session, then defaults)
 $currentTheme = $_COOKIE['theme'] ?? Session::get('theme', 'military');
-$currentLanguage = $_COOKIE['language'] ?? Session::get('language', 'en');
+$currentLanguage = $_COOKIE['lang'] ?? Session::get('lang', 'en');
 
 $themes = [
   'light' => 'Light Mode',
@@ -39,9 +44,7 @@ $themes = [
 
 $languages = [
   'en' => 'English',
-  'es' => 'Español (Spanish)',
-  'fr' => 'Français (French)',
-  'de' => 'Deutsch (German)'
+  'fr' => 'Français (French)'
 ];
 
 include_once ROOT . '/shared/header.php';

@@ -277,3 +277,48 @@ All items in todo.md "Improvement Ideas & Suggestions" section marked [x]:
 
 **Why:** Theme switching was causing unreadable text because CSS rules relied on inheritance and didn't explicitly set text colors for all elements in each theme. Now every theme explicitly defines all color variables and element-specific colors to prevent any combination from producing same-color text on background.
 
+
+## BUG 4 & CLEANUP: Language Persistence and Spanish Removal
+
+### Files Changed:
+
+**app/Core/Router.php**
+- Added settings action handler for `?page=settings&action=language` and `&action=theme`
+- Validates language input to only accept 'en' or 'fr'
+- Stores language in both $_SESSION['lang'] and cookie (30 days)
+- Redirects back to referring page after change
+- Status: DONE
+
+**app/Views/settings/index.php**
+- Removed 'es' and 'de' from languages array (only 'en' and 'fr' remain)
+- Changed cookie/session key from 'language' to 'lang' for consistency
+- Added validation to ensure only 'en' or 'fr' can be saved
+- Status: DONE
+
+**shared/header.php**
+- Updated toggleTheme() to use class names: theme-light, theme-dark, theme-military
+- Added localStorage persistence for theme preference
+- Added immediate theme application on page load to prevent flash of wrong theme
+- Language selector already uses correct $_SESSION['lang'] ?? $_COOKIE['lang'] logic
+- Status: DONE
+
+**lang/es.json**
+- DELETED as part of Spanish language removal
+- Status: DONE
+
+**shared/military-ui/mil-ops.css**
+- Added comprehensive theme support CSS for light, dark, and military themes
+- Each theme explicitly sets: background-color, color, border-color for all elements
+- Covers: navbar, header, cards, panels, inputs, tables, nav items, badges, labels
+- Prevents unreadable text when switching between themes
+- Status: DONE
+
+---
+
+## Summary
+
+✅ BUG 4 FIXED: Language now persists via both session AND cookie (30 days)
+✅ CLEANUP DONE: Spanish (es) and German (de) removed, only EN and FR remain
+✅ BUG 5 FIXED: Theme switching now has explicit colors for all elements, no more invisible text
+
+All changes follow minimal modification principle - only what was needed to fix the bugs.
