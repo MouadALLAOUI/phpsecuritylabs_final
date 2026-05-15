@@ -11,7 +11,17 @@ class Translator
 
     private function __construct()
     {
-        $this->loadLanguage('en');
+        // Check cookie first, then session, then default to 'en'
+        $lang = 'en';
+        
+        if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], ['en', 'fr'])) {
+            $lang = $_COOKIE['lang'];
+        } elseif (isset($_SESSION['lang']) && in_array($_SESSION['lang'], ['en', 'fr'])) {
+            $lang = $_SESSION['lang'];
+        }
+        
+        $this->currentLang = $lang;
+        $this->loadLanguage($lang);
     }
 
     public static function getInstance(): self
@@ -24,15 +34,19 @@ class Translator
 
     public function setLanguage(string $lang): void
     {
-        $supportedLanguages = ['en', 'es', 'fr', 'de'];
+        $supportedLanguages = ['en', 'fr'];
         if (in_array($lang, $supportedLanguages)) {
             $this->currentLang = $lang;
             $this->loadLanguage($lang);
+            
             // Store in session for persistence
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
             }
-            $_SESSION['language'] = $lang;
+            $_SESSION['lang'] = $lang;
+            
+            // Store in cookie for 30 days
+            setcookie('lang', $lang, time() + (30 * 24 * 60 * 60), '/');
         }
     }
 
@@ -72,9 +86,7 @@ class Translator
     {
         return [
             'en' => 'English',
-            'es' => 'Español',
-            'fr' => 'Français',
-            'de' => 'Deutsch'
+            'fr' => 'Français'
         ];
     }
 }

@@ -160,9 +160,8 @@ function isMenuItemActive($item)
       <!-- Language Selector -->
       <select id="languageSelector" onchange="changeLanguage(this.value)" 
         class="bg-gray-800 text-green-400 border border-green-700 rounded px-2 py-1 text-xs mr-2 focus:outline-none focus:border-green-500">
-        <option value="en" <?= (($_SESSION['lang'] ?? 'en') === 'en') ? 'selected' : '' ?>>EN</option>
-        <option value="es" <?= (($_SESSION['lang'] ?? 'en') === 'es') ? 'selected' : '' ?>>ES</option>
-        <option value="fr" <?= (($_SESSION['lang'] ?? 'en') === 'fr') ? 'selected' : '' ?>>FR</option>
+        <option value="en" <?= (($_SESSION['lang'] ?? $_COOKIE['lang'] ?? 'en') === 'en') ? 'selected' : '' ?>>EN</option>
+        <option value="fr" <?= (($_SESSION['lang'] ?? $_COOKIE['lang'] ?? 'en') === 'fr') ? 'selected' : '' ?>>FR</option>
       </select>
       
       <!-- Theme Toggle -->

@@ -58,9 +58,8 @@
             <!-- Language Selector -->
             <select id="languageSelector" onchange="changeLanguage(this.value)" 
               class="ml-2 bg-gray-800 text-gray-300 border border-gray-600 rounded px-2 py-1 text-xs focus:outline-none focus:border-indigo-500">
-              <option value="en" <?= (($_SESSION['lang'] ?? 'en') === 'en') ? 'selected' : '' ?>>EN</option>
-              <option value="es" <?= (($_SESSION['lang'] ?? 'en') === 'es') ? 'selected' : '' ?>>ES</option>
-              <option value="fr" <?= (($_SESSION['lang'] ?? 'en') === 'fr') ? 'selected' : '' ?>>FR</option>
+              <option value="en" <?= (($_SESSION['lang'] ?? $_COOKIE['lang'] ?? 'en') === 'en') ? 'selected' : '' ?>>EN</option>
+              <option value="fr" <?= (($_SESSION['lang'] ?? $_COOKIE['lang'] ?? 'en') === 'fr') ? 'selected' : '' ?>>FR</option>
             </select>
             <!-- Theme Toggle -->
             <button onclick="toggleTheme()" 
@@ -126,16 +125,25 @@ function changeLanguage(lang) {
  * Toggle theme function - switches between light/dark/military themes
  */
 function toggleTheme() {
-  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-  const themes = ['light', 'dark', 'military'];
+  const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 
+                       (document.body.classList.contains('dark-theme') ? 'dark' : 'military');
+  const themes = ['military', 'light', 'dark'];
   const currentIndex = themes.indexOf(currentTheme);
   const nextTheme = themes[(currentIndex + 1) % themes.length];
+
+  // Remove all theme classes
+  document.body.classList.remove('light-theme', 'dark-theme');
   
-  document.documentElement.setAttribute('data-theme', nextTheme);
-  
+  // Add the new theme class (military is default, no class needed)
+  if (nextTheme === 'light') {
+    document.body.classList.add('light-theme');
+  } else if (nextTheme === 'dark') {
+    document.body.classList.add('dark-theme');
+  }
+
   // Persist to cookie
   document.cookie = 'theme=' + nextTheme + '; path=/; max-age=' + (30 * 24 * 60 * 60);
-  
+
   // Also update via AJAX if possible
   fetch('?page=settings&action=theme', {
     method: 'POST',
