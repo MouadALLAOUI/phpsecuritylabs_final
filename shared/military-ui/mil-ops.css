@@ -1080,3 +1080,159 @@ body.dark-theme .connection-status {
 }
 
 /* Military theme (default) - already defined in :root and base styles */
+
+/* ============================================
+   THEME SUPPORT - Light/Dark/Military
+   Explicit color definitions for each theme
+   ============================================ */
+
+/* LIGHT THEME */
+body.theme-light {
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+body.theme-light .navbar,
+body.theme-light header,
+body.theme-light .mil-top-bar {
+  background-color: #f8f9fa;
+  color: #1a1a1a;
+}
+body.theme-light .card,
+body.theme-light .panel,
+body.theme-light .terminal-panel,
+body.theme-light .mission-header {
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+body.theme-light input,
+body.theme-light textarea,
+body.theme-light select,
+body.theme-light .mil-input {
+  background-color: #ffffff;
+  color: #1a1a1a;
+  border-color: #cccccc;
+}
+body.theme-light a {
+  color: #0056b3;
+}
+body.theme-light table td,
+body.theme-light table th {
+  color: #1a1a1a;
+}
+body.theme-light .nav-item a {
+  color: #333333;
+}
+body.theme-light .nav-item a i {
+  color: #666666;
+}
+body.theme-light .badge {
+  color: #ffffff;
+  background-color: #6c757d;
+}
+body.theme-light .system-title,
+body.theme-light .agent-label,
+body.theme-light .clearance-label,
+body.theme-light .connection-status {
+  color: #1a1a1a;
+}
+
+/* DARK THEME */
+body.theme-dark {
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+}
+body.theme-dark .navbar,
+body.theme-dark header,
+body.theme-dark .mil-top-bar {
+  background-color: #16213e;
+  color: #e0e0e0;
+}
+body.theme-dark .card,
+body.theme-dark .panel,
+body.theme-dark .terminal-panel,
+body.theme-dark .mission-header {
+  background-color: #16213e;
+  color: #e0e0e0;
+}
+body.theme-dark input,
+body.theme-dark textarea,
+body.theme-dark select,
+body.theme-dark .mil-input {
+  background-color: #0f3460;
+  color: #e0e0e0;
+  border-color: #444466;
+}
+body.theme-dark a {
+  color: #4fc3f7;
+}
+body.theme-dark table td,
+body.theme-dark table th {
+  color: #e0e0e0;
+}
+body.theme-dark .nav-item a {
+  color: #c0c0c0;
+}
+body.theme-dark .nav-item a i {
+  color: #808080;
+}
+body.theme-dark .badge {
+  color: #ffffff;
+  background-color: #444466;
+}
+body.theme-dark .system-title,
+body.theme-dark .agent-label,
+body.theme-dark .clearance-label,
+body.theme-dark .connection-status {
+  color: #e0e0e0;
+}
+
+/* MILITARY THEME (default) */
+body.theme-military,
+body.mil-body {
+  background-color: #0a0a0a;
+  color: #00ff41;
+}
+body.theme-military .navbar,
+body.theme-military header,
+body.theme-military .mil-top-bar {
+  background-color: #0d1117;
+  color: #00ff41;
+}
+body.theme-military .card,
+body.theme-military .panel,
+body.theme-military .terminal-panel,
+body.theme-military .mission-header {
+  background-color: #0d1117;
+  color: #00ff41;
+}
+body.theme-military input,
+body.theme-military textarea,
+body.theme-military select,
+body.theme-military .mil-input {
+  background-color: #0a0a0a;
+  color: #00ff41;
+  border-color: #00ff41;
+}
+body.theme-military a {
+  color: #00ff41;
+}
+body.theme-military table td,
+body.theme-military table th {
+  color: #00ff41;
+}
+body.theme-military .nav-item a {
+  color: #00ff41;
+}
+body.theme-military .nav-item a i {
+  color: #00ff41;
+}
+body.theme-military .badge {
+  color: #000000;
+  background-color: #00ff41;
+}
+body.theme-military .system-title,
+body.theme-military .agent-label,
+body.theme-military .clearance-label,
+body.theme-military .connection-status {
+  color: #00ff41;
+}

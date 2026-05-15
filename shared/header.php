@@ -102,6 +102,12 @@
   <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
 
 <script>
+// Apply saved theme immediately on page load (before CSS loads to prevent flash)
+(function() {
+  var savedTheme = localStorage.getItem('theme') || 'military';
+  document.body.className = 'theme-' + savedTheme;
+})();
+
 /**
  * Change language function - uses session-based language switching
  */
@@ -125,22 +131,19 @@ function changeLanguage(lang) {
  * Toggle theme function - switches between light/dark/military themes
  */
 function toggleTheme() {
-  const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 
-                       (document.body.classList.contains('dark-theme') ? 'dark' : 'military');
+  const currentTheme = document.body.classList.contains('theme-light') ? 'light' : 
+                       (document.body.classList.contains('theme-dark') ? 'dark' : 'military');
   const themes = ['military', 'light', 'dark'];
   const currentIndex = themes.indexOf(currentTheme);
   const nextTheme = themes[(currentIndex + 1) % themes.length];
 
-  // Remove all theme classes
-  document.body.classList.remove('light-theme', 'dark-theme');
-  
-  // Add the new theme class (military is default, no class needed)
-  if (nextTheme === 'light') {
-    document.body.classList.add('light-theme');
-  } else if (nextTheme === 'dark') {
-    document.body.classList.add('dark-theme');
-  }
+  // Remove all theme classes and add the new one
+  document.body.classList.remove('theme-light', 'theme-dark', 'theme-military');
+  document.body.classList.add('theme-' + nextTheme);
 
+  // Save to localStorage for persistence across pages
+  localStorage.setItem('theme', nextTheme);
+  
   // Persist to cookie
   document.cookie = 'theme=' + nextTheme + '; path=/; max-age=' + (30 * 24 * 60 * 60);
 

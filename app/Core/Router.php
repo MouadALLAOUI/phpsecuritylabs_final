@@ -67,6 +67,43 @@ class Router
       }
       return;
     }
+    
+    // Handle settings actions (language, theme)
+    if ($page === 'settings') {
+      if ($action === 'language') {
+        $lang = $_POST['language'] ?? 'en';
+        // Validate language is only 'en' or 'fr'
+        if (!in_array($lang, ['en', 'fr'])) {
+          $lang = 'en';
+        }
+        // Store in session
+        if (session_status() === PHP_SESSION_NONE) {
+          session_start();
+        }
+        $_SESSION['lang'] = $lang;
+        // Store in cookie for 30 days
+        setcookie('lang', $lang, time() + (30 * 24 * 60 * 60), '/');
+        // Redirect back
+        header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '?page=home'));
+        exit;
+      }
+      if ($action === 'theme') {
+        $theme = $_POST['theme'] ?? 'military';
+        if (!in_array($theme, ['light', 'dark', 'military'])) {
+          $theme = 'military';
+        }
+        if (session_status() === PHP_SESSION_NONE) {
+          session_start();
+        }
+        $_SESSION['theme'] = $theme;
+        setcookie('theme', $theme, time() + (30 * 24 * 60 * 60), '/');
+        header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '?page=home'));
+        exit;
+      }
+      // Show settings page
+      include_once ROOT . '/app/Views/settings/index.php';
+      return;
+    }
     if ($page === 'patch_xss' || $page === 'patch_sqli' || $page === 'patch_fileupload') {
       $this->renderPatchReport($page);
       return;
