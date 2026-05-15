@@ -19,20 +19,20 @@
 - [x] `app/Core/Router.php` — Hardcoded route list requires manual maintenance; implement dynamic route discovery or config file
 - [x] `app/Core/Router.php` — Returns null for unmatched routes (plain text 404); return styled 404 error page
 - [x] `app/Core/BaseChallenge.php` — Uses `$_REQUEST` which combines GET/POST/COOKIE; use explicit `$_POST` or `$_GET` based on context
-- [ ] `app/Core/LabEngine.php` — Stores vulnerability config in session (user-manipulable); store in server-side session with integrity check
-- [ ] `app/Views/settings/index.php` — Settings stored only in session (lost on logout); persist settings to database or cookies
-- [ ] `shared/header.php` — Language selector references non-existent `$_SESSION['lang']` key; add null coalescing operator or initialize session key
-- [ ] `shared/header.php` — Theme toggle function referenced but not defined; define `toggleTheme()` JavaScript function
-- [ ] `api.php` — Overly permissive CORS header (`Access-Control-Allow-Origin: *`); restrict to specific origins or remove for internal API
-- [ ] `api.php` — No rate limiting on API endpoints; implement rate limiting middleware
-- [ ] `tests/Core/AuthTest.php` — Minimal test coverage (only 3 basic tests); add tests for login, logout, permission checks
+- [x] `app/Core/LabEngine.php` — Stores vulnerability config in session (user-manipulable); store in server-side session with integrity check
+- [x] `app/Views/settings/index.php` — Settings stored only in session (lost on logout); persist settings to database or cookies
+- [x] `shared/header.php` — Language selector references non-existent `$_SESSION['lang']` key; add null coalescing operator or initialize session key
+- [x] `shared/header.php` — Theme toggle function referenced but not defined; define `toggleTheme()` JavaScript function
+- [x] `api.php` — Overly permissive CORS header (`Access-Control-Allow-Origin: *`); restrict to specific origins or remove for internal API
+- [x] `api.php` — No rate limiting on API endpoints; implement rate limiting middleware
+- [x] `tests/Core/AuthTest.php` — Minimal test coverage (only 3 basic tests); add tests for login, logout, permission checks
 
 ### 🔴 Secure Core — Low Priority
 
 - [x] `app/Core/Database.php` — Commented-out `use PDOException` import (line 6); remove commented code or fix import
 - [ ] `app/Core/ChallengeDatabase.php` — Redundant with Database.php; hardcoded DB name 'challenges'; merge with Database.php or remove
-- [ ] `app/Views/admin/dashboard.php` — No empty state if no users exist; add "No users registered" message
-- [ ] `app/Views/labs.php` — No loading state for progress bars; add spinner while fetching progress
+- [x] `app/Views/admin/dashboard.php` — No empty state if no users exist; add "No users registered" message
+- [x] `app/Views/labs.php` — No loading state for progress bars; add spinner while fetching progress
 - [ ] `.env` — Empty database password in example configuration; add placeholder password with comment
 - [x] `storage/.htaccess` — Uses deprecated Apache 2.2 syntax (`Order Deny,Allow`); update to Apache 2.4+ syntax (`Require all denied`)
 - [ ] `shared/military-ui/header.php` — Agent codename stored in session persists unnaturally; clear agent data on logout or use temporary session
@@ -40,11 +40,11 @@
 ### 🟡 Lab Scaffolding Fixes
 
 - [ ] `labs/*/challenges/*.php` (all) — PDOException caught but error message shown directly to user; use custom error messages; log details server-side
-- [ ] `labs/xss/challenge_map.php` — No error handling if challenge class doesn't exist; add class_exists() check with fallback message
-- [ ] `labs/sqli/challenge_map.php` — No error handling if challenge class doesn't exist; add class_exists() check with fallback message
-- [ ] `labs/file_upload/challenge_map.php` — No error handling if challenge class doesn't exist; add class_exists() check with fallback message
-- [ ] `labs/csrf/challenge_map.php` — No error handling if challenge class doesn't exist; add class_exists() check with fallback message
-- [ ] `labs/xxe/challenge_map.php` — No error handling if challenge class doesn't exist; add class_exists() check with fallback message
+- [x] `labs/xss/challenge_map.php` — No error handling if challenge class doesn't exist; add class_exists() check with fallback message
+- [x] `labs/sqli/challenge_map.php` — No error handling if challenge class doesn't exist; add class_exists() check with fallback message
+- [x] `labs/file_upload/challenge_map.php` — No error handling if challenge class doesn't exist; add class_exists() check with fallback message
+- [x] `labs/csrf/challenge_map.php` — No error handling if challenge class doesn't exist; add class_exists() check with fallback message
+- [x] `labs/xxe/challenge_map.php` — No error handling if challenge class doesn't exist; add class_exists() check with fallback message
 - [ ] `labs/sqli/challenge.php` — Not connected to challenge_map.php (orphaned); either integrate into routing or DELETE
 - [ ] `labs/file_upload/challenge.php` — Not connected to challenge_map.php (orphaned); either integrate into routing or DELETE
 - [ ] `labs/xss/challenges/Level1ReflectedMilitary.php` — Duplicate of Level1Reflected.php with theme change only; consider merging or clearly differentiating
