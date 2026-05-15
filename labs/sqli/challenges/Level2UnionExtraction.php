@@ -68,7 +68,9 @@ class Level2UnionExtraction extends BaseChallenge
                     $this->queryResult = "No agents found.";
                 }
             } catch (\PDOException $e) {
-                $this->queryResult = "SQL ERROR: " . $e->getMessage();
+                // Log the detailed error server-side, show generic message to user
+                error_log("SQLi Lab Level2 PDO Error: " . $e->getMessage());
+                $this->queryResult = "A database error occurred. Please try again.";
             }
         }
     }

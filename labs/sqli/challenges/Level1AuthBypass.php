@@ -75,7 +75,9 @@ class Level1AuthBypass extends BaseChallenge
                     $this->queryResult = "ACCESS DENIED\nInvalid credentials.\n[ATTEMPT LOGGED]";
                 }
             } catch (\PDOException $e) {
-                $this->queryResult = "SQL ERROR: " . $e->getMessage();
+                // Log the detailed error server-side, show generic message to user
+                error_log("SQLi Lab Level1 PDO Error: " . $e->getMessage());
+                $this->queryResult = "A database error occurred. Please try again.";
             }
         }
     }
