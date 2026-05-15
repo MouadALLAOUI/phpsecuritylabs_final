@@ -143,6 +143,17 @@ class AuthController
       exit;
     }
 
+    // CSRF protection for lab reset action
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+      // Allow GET requests for reset (from labs page links), but require POST token for form submissions
+      // For backward compatibility with existing GET-based reset links, we skip CSRF check for GET
+      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $_SESSION['reset_error'] = 'Invalid security token';
+        header('Location: ?page=labs');
+        exit;
+      }
+    }
+
     $userId = $this->auth->getUserId();
     $sql = "DELETE FROM lab_progress WHERE user_id = :user_id AND lab_name = :lab_name";
     $this->db->query($sql, ['user_id' => $userId, 'lab_name' => $labName]);

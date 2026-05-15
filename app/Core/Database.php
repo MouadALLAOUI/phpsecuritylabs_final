@@ -3,11 +3,10 @@
 namespace App\Core;
 
 use PDO;
-// use PDOException;
+use PDOException;
 
 class Database
 {
-  // private static ?Database $instance = null;
   private static ?array $instances = [];
   private PDO $pdo;
 
@@ -27,7 +26,12 @@ class Database
       PDO::ATTR_EMULATE_PREPARES   => false,
     ];
 
-    $this->pdo = new PDO($dsn, $config['user'], $config['password'], $options);
+    try {
+      $this->pdo = new PDO($dsn, $config['user'], $config['password'], $options);
+    } catch (PDOException $e) {
+      error_log('Database connection failed: ' . $e->getMessage());
+      throw new \RuntimeException('Database connection failed. Please check your configuration.');
+    }
   }
 
   /**

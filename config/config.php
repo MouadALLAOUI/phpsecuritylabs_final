@@ -41,5 +41,16 @@ try {
     'charset'  => 'utf8mb4',
   ];
 } catch (\Throwable $th) {
-  throw $th;
+  // Fallback to default values if .env is missing or unreadable
+  // In production, you should ensure .env exists and is properly configured
+  error_log('Config warning: Using default database configuration. ' . $th->getMessage());
+  return [
+    'host'     => 'localhost',
+    'port'     => '3306',
+    'dbname'   => 'php_security_labs_app',
+    'dbname_labs'   => 'php_security_labs_challenges',
+    'user'     => 'root',
+    'password' => '',
+    'charset'  => 'utf8mb4',
+  ];
 }

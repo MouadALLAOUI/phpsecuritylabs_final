@@ -74,20 +74,47 @@ class Router
 
     // Restrict to known routes only (prevents directory traversal)
     if (!array_key_exists($page, $this->routes)) {
-      http_response_code(404);
-      echo 'Page not found';
+      $this->render404();
       return;
     }
 
     $file = dirname(__DIR__, 2) . $this->routes[$page];
 
     if (!file_exists($file)) {
-      http_response_code(404);
-      echo 'Page not found';
+      $this->render404();
       return;
     }
 
     require $file;
+  }
+
+  /**
+   * Render a styled 404 error page
+   */
+  private function render404(): void
+  {
+    http_response_code(404);
+    include_once ROOT . '/shared/header.php';
+    ?>
+    <div class="max-w-2xl mx-auto py-12 px-4">
+      <div class="bg-white rounded-lg shadow-md p-8 text-center">
+        <div class="mb-6">
+          <i class="fas fa-exclamation-triangle text-6xl text-red-500"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">404 - Page Not Found</h1>
+        <p class="text-gray-600 mb-6">The page you are looking for does not exist or has been moved.</p>
+        <div class="flex justify-center gap-4">
+          <a href="?page=home" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+            <i class="fas fa-home mr-2"></i> Go to Dashboard
+          </a>
+          <a href="?page=labs" class="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition">
+            <i class="fas fa-flask mr-2"></i> Browse Labs
+          </a>
+        </div>
+      </div>
+    </div>
+    <?php
+    include_once ROOT . '/shared/footer.php';
   }
 
   private function registerLabRoutes(): void
