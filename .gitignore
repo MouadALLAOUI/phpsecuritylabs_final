@@ -2,17 +2,29 @@
 # Logs and temp files
 *.log
 *.tmp
-*.swp
 
 # Environment
 .env
 .env.local
 *.env.*
 
-# Editors
+# Dependencies
+vendor/
+
+# IDE
 .vscode/
 .idea/
 
-# Original rules preserved
-*.log
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/
+*.cache
+
+# PHP specific
+*.php~
+.php_cs.cache
+opcache/
 ```
