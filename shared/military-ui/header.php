@@ -5,12 +5,18 @@
  * With dynamic sidebar configuration
  */
 
-// Generate dynamic agent codename
+// Generate dynamic agent codename (only if not already set in this session)
 if (!isset($_SESSION['agent_codename'])) {
   $codenames = ['GHOST', 'VIPER', 'PHANTOM', 'ECHO', 'RAVEN', 'SPECTRE', 'TITAN', 'FALCON'];
   $_SESSION['agent_codename'] = $codenames[array_rand($codenames)];
 }
 $agentCodename = $_SESSION['agent_codename'] ?? 'OPERATOR';
+
+// Clear agent codename on logout detection
+if (isset($_GET['logout']) && isset($_SESSION['agent_codename'])) {
+  unset($_SESSION['agent_codename']);
+  $agentCodename = 'OPERATOR';
+}
 
 $currentClearance = $_SESSION['clearance_level'] ?? 'LEVEL 2';
 

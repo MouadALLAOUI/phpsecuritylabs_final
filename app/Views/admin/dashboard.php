@@ -41,6 +41,17 @@
           </tr>
         </thead>
         <tbody>
+          <?php if (empty($users)): ?>
+          <tr>
+            <td colspan="7" class="empty-state">
+              <div class="no-data-message">
+                <i class="fas fa-users-slash text-4xl text-gray-400 mb-3"></i>
+                <p class="text-lg font-medium text-gray-600">No operators registered yet</p>
+                <p class="text-sm text-gray-500 mt-1">Operators will appear here once they create accounts</p>
+              </div>
+            </td>
+          </tr>
+          <?php else: ?>
           <?php foreach ($users as $user): ?>
           <tr>
             <td class="codename"><?= htmlspecialchars($user['codename'] ?? 'N/A') ?></td>
@@ -65,6 +76,7 @@
             </td>
           </tr>
           <?php endforeach; ?>
+          <?php endif; ?>
         </tbody>
       </table>
     </div>
