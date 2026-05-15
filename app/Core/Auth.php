@@ -154,7 +154,7 @@ class Auth
     $db = Database::getInstance('app');
     $pdo = $db->getConnection();
 
-    $sql = "SELECT u.id, u.username, u.codename, u.created_at,
+    $sql = "SELECT u.id, u.username, u.role, u.created_at,
                    SUM(CASE WHEN lp.lab_name = 'xss' AND lp.completed = 1 THEN 1 ELSE 0 END) as xss_count,
                    SUM(CASE WHEN lp.lab_name = 'sqli' AND lp.completed = 1 THEN 1 ELSE 0 END) as sqli_count,
                    SUM(CASE WHEN lp.lab_name = 'file_upload' AND lp.completed = 1 THEN 1 ELSE 0 END) as upload_count,
