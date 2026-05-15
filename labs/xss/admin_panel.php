@@ -44,11 +44,27 @@ if (isset($_POST['search'])) {
 
     <div class="bg-white shadow rounded-lg p-6" style="background: #0a0f1a; border: 1px solid #1a2332;">
       <h2 class="text-lg font-medium text-gray-900 mb-4" style="color: #00ff41; font-family: monospace;">Recent Search Logs</h2>
+      
+      <?php 
+      // Pagination configuration
+      $itemsPerPage = 10;
+      $totalItems = count($searches);
+      $totalPages = max(1, ceil($totalItems / $itemsPerPage));
+      $currentPage = isset($_GET['page_num']) && is_numeric($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
+      $currentPage = max(1, min($currentPage, $totalPages));
+      $offset = ($currentPage - 1) * $itemsPerPage;
+      $paginatedSearches = array_slice($searches, $offset, $itemsPerPage);
+      ?>
+      
       <?php if (empty($searches)): ?>
-        <p class="text-gray-500 italic" style="color: #6b7280;">No searches yet.</p>
+        <div class="empty-state" style="text-align: center; padding: 40px; color: #6b7280;">
+          <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+          <p class="text-gray-500 italic">No search logs available yet.</p>
+          <p class="text-sm" style="margin-top: 10px;">Search queries will appear here when agents use the search function.</p>
+        </div>
       <?php else: ?>
         <ul class="divide-y divide-gray-200" style="border-color: #1a2332;">
-          <?php foreach ($searches as $entry): ?>
+          <?php foreach ($paginatedSearches as $entry): ?>
             <li class="py-3" style="border-color: #1a2332;">
               <p class="text-sm text-gray-500 font-mono" style="color: #00ff41;"><?= htmlspecialchars($entry) ?></p>
               <!-- ⚠️ VULNERABLE: the raw search term is echoed without escaping -->
@@ -64,6 +80,34 @@ if (isset($_POST['search'])) {
             </li>
           <?php endforeach; ?>
         </ul>
+        
+        <!-- Pagination Controls -->
+        <?php if ($totalPages > 1): ?>
+        <div class="pagination-controls" style="margin-top: 20px; display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
+          <?php if ($currentPage > 1): ?>
+            <a href="?page=xss_admin_panel&page_num=<?= $currentPage - 1 ?>" class="mil-btn mil-btn-secondary" style="padding: 5px 10px; font-size: 12px;">
+              <i class="fas fa-chevron-left"></i> Prev
+            </a>
+          <?php endif; ?>
+          
+          <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+            <a href="?page=xss_admin_panel&page_num=<?= $i ?>" 
+               class="mil-btn <?= $i === $currentPage ? 'mil-btn-primary' : 'mil-btn-secondary' ?>" 
+               style="padding: 5px 10px; font-size: 12px; min-width: 30px;">
+              <?= $i ?>
+            </a>
+          <?php endfor; ?>
+          
+          <?php if ($currentPage < $totalPages): ?>
+            <a href="?page=xss_admin_panel&page_num=<?= $currentPage + 1 ?>" class="mil-btn mil-btn-secondary" style="padding: 5px 10px; font-size: 12px;">
+              Next <i class="fas fa-chevron-right"></i>
+            </a>
+          <?php endif; ?>
+        </div>
+        <p class="text-xs text-gray-500" style="text-align: center; margin-top: 10px;">
+          Showing <?= $offset + 1 ?>-<?= min($offset + $itemsPerPage, $totalItems) ?> of <?= $totalItems ?> entries
+        </p>
+        <?php endif; ?>
       <?php endif; ?>
     </div>
 

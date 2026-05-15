@@ -58,6 +58,10 @@ class AuthController
   public function handleLogout(): void
   {
     $this->auth->logout();
+    // Clear agent codename on logout to prevent persistence across sessions
+    if (isset($_SESSION['agent_codename'])) {
+      unset($_SESSION['agent_codename']);
+    }
     header('Location: ?page=home');
     exit;
   }

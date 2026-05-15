@@ -1,7 +1,7 @@
+```
 # Logs and temp files
 *.log
 *.tmp
-*.swp
 
 # Environment
 .env
@@ -24,7 +24,7 @@ target/
 .vscode/
 .idea/
 
-# System
+# System files
 .DS_Store
 Thumbs.db
 
@@ -38,6 +38,11 @@ Thumbs.db
 *.a
 *.obj
 *.out
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
 
 # Compressed files
 *.zip
@@ -62,8 +67,4 @@ Thumbs.db
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
+```

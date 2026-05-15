@@ -1,13 +1,12 @@
 # Prevent PHP execution in uploads directory
 
-<FilesMatch "\.(php|phtml|php3|php4|php5|phps|phtm)$">
-    Order Deny,Allow
-    Deny from all
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phps|phar|exe|sh|py|pl|cgi)$">
+    Require all denied
 </FilesMatch>
 
 # Disable script execution
 
 php_flag engine off
 Options -ExecCGI
-AddHandler cgi-script .php .phtml .php3 .php4 .php5
-RemoveHandler .php .phtml .php3 .php4 .php5
+AddHandler cgi-script .php .phtml .php3 .php4 .php5 .php7 .phar .exe .sh .py .pl .cgi
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phar .exe .sh .py .pl .cgi

@@ -26,7 +26,14 @@ class Level1XXE extends BaseChallenge
       try {
         // VULNERABLE: libxml_disable_entity_loader is deprecated in PHP 8+
         // This code is intentionally vulnerable for educational purposes
-        $oldEntityLoader = libxml_disable_entity_loader(false);
+        // PHP 8+ compatibility: use alternative approach
+        $oldEntityLoader = null;
+        if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+          $oldEntityLoader = libxml_disable_entity_loader(false);
+        } else {
+          // PHP 8+: libxml_disable_entity_loader is deprecated, use external entity loader callback
+          libxml_set_external_entity_loader(null); // Allow external entities (vulnerable)
+        }
         $internalErrors = libxml_use_internal_errors(true);
         
         $dom = new \DOMDocument();
@@ -46,7 +53,9 @@ class Level1XXE extends BaseChallenge
         }
         
         // Restore libxml settings
-        libxml_disable_entity_loader($oldEntityLoader);
+        if (version_compare(PHP_VERSION, '8.0.0', '<') && $oldEntityLoader !== null) {
+          libxml_disable_entity_loader($oldEntityLoader);
+        }
         libxml_use_internal_errors($internalErrors);
         
       } catch (\Exception $e) {
