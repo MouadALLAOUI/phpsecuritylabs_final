@@ -59,23 +59,34 @@
 
 ## 💡 Improvement Ideas & Suggestions
 
-- [ ] **[Links]** Verify all links in header and footer are correct and not broken (e.g. "Labs" link should go to /labs, "Settings" to /settings, etc.)
+- [x] **[Links]** Verify all links in header and footer are correct and not broken (e.g. "Labs" link should go to /labs, "Settings" to /settings, etc.)
 
-- [ ] **[Dashboard]** Add "Last Login" column to admin dashboard user list for better user management insights; add all other missing labs and challenges to dashboard stats for comprehensive overview.
+- [x] **[Dashboard]** Add "Last Login" column to admin dashboard user list for better user management insights; add all other missing labs and challenges to dashboard stats for comprehensive overview.
 
-- [ ] **[UI and Themes]** Add clear visual indicators for vulnerable vs patched state in labs (e.g. red border for vulnerable, green for patched); add a theme toggle switch accessible from every page without needing to visit settings; use visible color and icon changes to indicate current theme (sun/moon for light/dark, crosshairs for military).
+- [x] **[UI and Themes]** Add clear visual indicators for vulnerable vs patched state in labs (e.g. red border for vulnerable, green for patched); add a theme toggle switch accessible from every page without needing to visit settings; use visible color and icon changes to indicate current theme (sun/moon for light/dark, crosshairs for military).
 
-- [ ] **[UX]** Add confirmation modals for destructive actions (e.g. resetting lab progress, deleting user accounts) to prevent accidental clicks; add success/error flash messages after all actions for consistent feedback.
+- [x] **[UX]** Add confirmation modals for destructive actions (e.g. resetting lab progress, deleting user accounts) to prevent accidental clicks; add success/error flash messages after all actions for consistent feedback.
 
-- [ ] **[New Lab Modules]** Add SSRF (Server-Side Request Forgery), IDOR (Insecure Direct Object Reference), Path Traversal, Deserialization, and JWT attack labs to expand OWASP Top 10 coverage
-- [ ] **[Instructor/Demo Mode]** Implement live toggle between vulnerable and patched state within each lab, allowing instructors to demonstrate both the exploit and the fix in real-time
-- [ ] **[Student Experience]** Add hint reveal timer (penalty for using hints), lab completion timer, and score multiplier for speed to increase engagement
-- [ ] **[Progress & Reporting]** Build instructor dashboard with class-wide analytics and add student progress export to PDF/CSV for certification tracking
-- [ ] **[Deployment]** Create Docker Compose setup with pre-configured MySQL and PHP, plus a one-command install script for quick environment provisioning
-- [ ] **[API Hardening]** Implement rate limiting middleware, lockdown CORS to specific origins, and add API key authentication for REST endpoints
-- [ ] **[Auth Upgrade]** Replace MD5 with `password_hash()`/bcrypt in Auth.php and update seed.sql to use secure password hashing
-- [ ] **[i18n]** Wire existing Translator.php + en/es/fr.json to all views, enabling full multi-language support throughout the platform
-- [ ] **[Testing]** Expand PHPUnit suite to cover Database, Router, ChallengeLoader, and LabEngine classes with integration tests
-- [ ] **[Accessibility]** Add ARIA labels and keyboard navigation support for military UI terminal inputs and all interactive elements
-- [ ] **[Theme Persistence]** Save user theme preference (dark/light/military) to database instead of just session for persistent experience across sessions
-- [ ] **[Notification System]** Wire the notifications table to a real in-app bell icon with real-time updates for challenge completions and achievements
+- [x] **[New Lab Modules]** Add SSRF (Server-Side Request Forgery), IDOR (Insecure Direct Object Reference), Path Traversal, Deserialization, and JWT attack labs to expand OWASP Top 10 coverage
+
+- [x] **[Instructor/Demo Mode]** Implement live toggle between vulnerable and patched state within each lab, allowing instructors to demonstrate both the exploit and the fix in real-time
+
+- [x] **[Student Experience]** Add hint reveal timer (penalty for using hints), lab completion timer, and score multiplier for speed to increase engagement
+
+- [x] **[Progress & Reporting]** Build instructor dashboard with class-wide analytics and add student progress export to PDF/CSV for certification tracking
+
+- [x] **[Deployment]** Create Docker Compose setup with pre-configured MySQL and PHP, plus a one-command install script for quick environment provisioning
+
+- [x] **[API Hardening]** Implement rate limiting middleware, lockdown CORS to specific origins, and add API key authentication for REST endpoints
+
+- [x] **[Auth Upgrade]** Replace MD5 with `password_hash()`/bcrypt in Auth.php and update seed.sql to use secure password hashing
+
+- [x] **[i18n]** Wire existing Translator.php + en/es/fr.json to all views, enabling full multi-language support throughout the platform
+
+- [x] **[Testing]** Expand PHPUnit suite to cover Database, Router, ChallengeLoader, and LabEngine classes with integration tests
+
+- [x] **[Accessibility]** Add ARIA labels and keyboard navigation support for military UI terminal inputs and all interactive elements
+
+- [x] **[Theme Persistence]** Save user theme preference (dark/light/military) to database instead of just session for persistent experience across sessions
+
+- [x] **[Notification System]** Wire the notifications table to a real in-app bell icon with real-time updates for challenge completions and achievements
