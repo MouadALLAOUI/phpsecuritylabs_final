@@ -8,17 +8,17 @@
 
 ### 🔴 Secure Core — High Priority
 
-- [ ] `app/Core/Database.php` — No graceful fallback when DB connection fails; add try/catch with user-friendly error page
-- [ ] `app/Controllers/AuthController.php` — `resetLab()` method missing CSRF token validation; add CSRF token check before resetting lab
-- [ ] `config/config.php` — Throws exception if .env missing with no fallback; provide default values or clear setup instructions page
+- [x] `app/Core/Database.php` — No graceful fallback when DB connection fails; add try/catch with user-friendly error page
+- [x] `app/Controllers/AuthController.php` — `resetLab()` method missing CSRF token validation; add CSRF token check before resetting lab
+- [x] `config/config.php` — Throws exception if .env missing with no fallback; provide default values or clear setup instructions page
 - [ ] `config/database.php.bak` — Backup file should not be in repository; **DELETE THIS FILE**
 
 ### 🔴 Secure Core — Medium Priority
 
-- [ ] `app/Core/Database.php` — Uses array for instances instead of proper singleton pattern; refactor to clean singleton or multi-DB manager
-- [ ] `app/Core/Router.php` — Hardcoded route list requires manual maintenance; implement dynamic route discovery or config file
-- [ ] `app/Core/Router.php` — Returns null for unmatched routes (plain text 404); return styled 404 error page
-- [ ] `app/Core/BaseChallenge.php` — Uses `$_REQUEST` which combines GET/POST/COOKIE; use explicit `$_POST` or `$_GET` based on context
+- [x] `app/Core/Database.php` — Uses array for instances instead of proper singleton pattern; refactor to clean singleton or multi-DB manager
+- [x] `app/Core/Router.php` — Hardcoded route list requires manual maintenance; implement dynamic route discovery or config file
+- [x] `app/Core/Router.php` — Returns null for unmatched routes (plain text 404); return styled 404 error page
+- [x] `app/Core/BaseChallenge.php` — Uses `$_REQUEST` which combines GET/POST/COOKIE; use explicit `$_POST` or `$_GET` based on context
 - [ ] `app/Core/LabEngine.php` — Stores vulnerability config in session (user-manipulable); store in server-side session with integrity check
 - [ ] `app/Views/settings/index.php` — Settings stored only in session (lost on logout); persist settings to database or cookies
 - [ ] `shared/header.php` — Language selector references non-existent `$_SESSION['lang']` key; add null coalescing operator or initialize session key
@@ -29,12 +29,12 @@
 
 ### 🔴 Secure Core — Low Priority
 
-- [ ] `app/Core/Database.php` — Commented-out `use PDOException` import (line 6); remove commented code or fix import
+- [x] `app/Core/Database.php` — Commented-out `use PDOException` import (line 6); remove commented code or fix import
 - [ ] `app/Core/ChallengeDatabase.php` — Redundant with Database.php; hardcoded DB name 'challenges'; merge with Database.php or remove
 - [ ] `app/Views/admin/dashboard.php` — No empty state if no users exist; add "No users registered" message
 - [ ] `app/Views/labs.php` — No loading state for progress bars; add spinner while fetching progress
 - [ ] `.env` — Empty database password in example configuration; add placeholder password with comment
-- [ ] `storage/.htaccess` — Uses deprecated Apache 2.2 syntax (`Order Deny,Allow`); update to Apache 2.4+ syntax (`Require all denied`)
+- [x] `storage/.htaccess` — Uses deprecated Apache 2.2 syntax (`Order Deny,Allow`); update to Apache 2.4+ syntax (`Require all denied`)
 - [ ] `shared/military-ui/header.php` — Agent codename stored in session persists unnaturally; clear agent data on logout or use temporary session
 
 ### 🟡 Lab Scaffolding Fixes
