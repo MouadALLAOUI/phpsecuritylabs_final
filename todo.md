@@ -59,6 +59,14 @@
 
 ## 💡 Improvement Ideas & Suggestions
 
+- [ ] **[Links]** Verify all links in header and footer are correct and not broken (e.g. "Labs" link should go to /labs, "Settings" to /settings, etc.)
+
+- [ ] **[Dashboard]** Add "Last Login" column to admin dashboard user list for better user management insights; add all other missing labs and challenges to dashboard stats for comprehensive overview.
+
+- [ ] **[UI and Themes]** Add clear visual indicators for vulnerable vs patched state in labs (e.g. red border for vulnerable, green for patched); add a theme toggle switch accessible from every page without needing to visit settings; use visible color and icon changes to indicate current theme (sun/moon for light/dark, crosshairs for military).
+
+- [ ] **[UX]** Add confirmation modals for destructive actions (e.g. resetting lab progress, deleting user accounts) to prevent accidental clicks; add success/error flash messages after all actions for consistent feedback.
+
 - [ ] **[New Lab Modules]** Add SSRF (Server-Side Request Forgery), IDOR (Insecure Direct Object Reference), Path Traversal, Deserialization, and JWT attack labs to expand OWASP Top 10 coverage
 - [ ] **[Instructor/Demo Mode]** Implement live toggle between vulnerable and patched state within each lab, allowing instructors to demonstrate both the exploit and the fix in real-time
 - [ ] **[Student Experience]** Add hint reveal timer (penalty for using hints), lab completion timer, and score multiplier for speed to increase engagement
