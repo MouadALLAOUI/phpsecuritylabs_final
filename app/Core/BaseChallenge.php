@@ -4,14 +4,18 @@ namespace App\Core;
 
 abstract class BaseChallenge implements ChallengeInterface
 {
-  protected array $request = [];
   protected array $input = [];
-  protected bool $completed = false; // new property
+  protected bool $completed = false;
 
   public function __construct()
   {
-    $this->request = $_REQUEST;
-    $this->input   = $this->sanitizeInput($_REQUEST);
+    // Use explicit $_POST or $_GET instead of $_REQUEST to avoid confusion
+    // and potential security issues from COOKIE data mixing
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+      $this->input = $this->sanitizeInput($_POST);
+    } else {
+      $this->input = $this->sanitizeInput($_GET);
+    }
   }
 
   protected function getInput(string $key, mixed $default = null): mixed
