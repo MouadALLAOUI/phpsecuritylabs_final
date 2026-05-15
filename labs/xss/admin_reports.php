@@ -17,7 +17,7 @@ if (isset($_GET['mark_reviewed']) && is_numeric($_GET['mark_reviewed'])) {
   $id = $_GET['mark_reviewed'];
   $update = "UPDATE reports SET reviewed_by_admin = 1 WHERE id = :id";
   $db->query($update, ['id' => $id]);
-  header('Location: ?page=xss_admin_reports');
+  // header('Location: ?page=xss_admin_reports');
   exit;
 }
 ?>
