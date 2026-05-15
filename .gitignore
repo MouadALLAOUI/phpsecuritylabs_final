@@ -1,1 +1,24 @@
-Nothing should be ignored based on the provided file changes, as they only include markdown documentation files (.md) which are source/config files.
+```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.log
+*.tmp
+
+# Dependencies
+vendor/
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# Original rules preserved
+*.log
+```

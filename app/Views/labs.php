@@ -7,6 +7,14 @@ $progressData = $completed; // Already passed from controller as ['xss' => ['cou
 ?>
 <div class="lg:ml-64 p-6">
   <div class="max-w-4xl mx-auto">
+    <!-- Loading Spinner (shown initially, hidden when content loads) -->
+    <div id="loadingSpinner" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-8 text-center">
+        <i class="fas fa-circle-notch fa-spin text-4xl text-indigo-600 mb-4"></i>
+        <p class="text-gray-700 font-medium">Loading labs...</p>
+      </div>
+    </div>
+    
     <?php if (isset($_SESSION['reset_message'])): ?>
     <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4">
       <?= htmlspecialchars($_SESSION['reset_message']) ?>
@@ -18,7 +26,7 @@ $progressData = $completed; // Already passed from controller as ['xss' => ['cou
     </h1>
 
     <!-- XSS Lab -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6 border-l-4 border-yellow-400">
+    <div class="bg-white rounded-lg shadow p-6 mb-6 border-l-4 border-yellow-400 lab-content">
       <div class="flex justify-between items-start">
         <div>
           <h2 class="text-xl font-semibold text-gray-900">Cross‑Site Scripting (XSS)</h2>
@@ -46,7 +54,7 @@ $progressData = $completed; // Already passed from controller as ['xss' => ['cou
         <div class="text-sm text-gray-500">
           Progress: <?= $xssProgress ?>/<?= $xssTotal ?> completed
           <div class="w-48 bg-gray-200 rounded-full h-1.5 mt-1 inline-block ml-2">
-            <div class="bg-indigo-600 h-1.5 rounded-full" style="width: <?= ($xssProgress / $xssTotal) * 100 ?>%"></div>
+            <div class="bg-indigo-600 h-1.5 rounded-full progress-bar" style="width: <?= ($xssProgress / $xssTotal) * 100 ?>%"></div>
           </div>
           <?php if ($xssLastSolved): ?>
           <div class="mt-1 text-xs text-gray-400">Last solved: <?= date('Y-m-d H:i', strtotime($xssLastSolved)) ?></div>
@@ -242,4 +250,30 @@ $progressData = $completed; // Already passed from controller as ['xss' => ['cou
     </div>
   </div>
 </div>
+
+<script>
+// Hide loading spinner when page is fully loaded
+window.addEventListener('load', function() {
+  const spinner = document.getElementById('loadingSpinner');
+  if (spinner) {
+    spinner.style.opacity = '0';
+    spinner.style.transition = 'opacity 0.3s ease-out';
+    setTimeout(() => {
+      spinner.style.display = 'none';
+    }, 300);
+  }
+  
+  // Animate progress bars
+  const progressBars = document.querySelectorAll('.progress-bar');
+  progressBars.forEach(bar => {
+    const width = bar.style.width;
+    bar.style.width = '0%';
+    bar.style.transition = 'width 0.8s ease-out';
+    setTimeout(() => {
+      bar.style.width = width;
+    }, 100);
+  });
+});
+</script>
+
 <?php include_once ROOT . '/shared/footer.php'; ?>

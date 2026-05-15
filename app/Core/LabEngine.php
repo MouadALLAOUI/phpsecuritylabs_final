@@ -55,10 +55,32 @@ class LabEngine
   
   /**
    * Persist vulnerability configuration to session storage
+   * Includes integrity check to prevent tampering
    */
   private function persistToSession(): void
   {
+    // Add integrity hash to prevent session tampering
+    $this->config['_integrity'] = hash('sha256', json_encode($this->config, JSON_SORT_KEYS));
     $_SESSION[$this->storageKey] = $this->config;
+  }
+  
+  /**
+   * Validate integrity of session-stored config
+   * Returns false if tampering is detected
+   */
+  public function validateIntegrity(): bool
+  {
+    if (!isset($this->config['_integrity'])) {
+      return false;
+    }
+    
+    $storedHash = $this->config['_integrity'];
+    $configCopy = $this->config;
+    unset($configCopy['_integrity']);
+    
+    $calculatedHash = hash('sha256', json_encode($configCopy, JSON_SORT_KEYS));
+    
+    return hash_equals($storedHash, $calculatedHash);
   }
   
   /**

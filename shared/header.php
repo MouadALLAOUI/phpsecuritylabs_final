@@ -101,3 +101,48 @@
 
   <!-- Main content area starts here. Pages will add their own container. -->
   <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+
+<script>
+/**
+ * Change language function - uses session-based language switching
+ */
+function changeLanguage(lang) {
+  // Create a temporary form to submit the language change
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '?page=settings&action=language';
+  
+  const input = document.createElement('input');
+  input.type = 'hidden';
+  input.name = 'language';
+  input.value = lang;
+  
+  form.appendChild(input);
+  document.body.appendChild(form);
+  form.submit();
+}
+
+/**
+ * Toggle theme function - switches between light/dark/military themes
+ */
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  const themes = ['light', 'dark', 'military'];
+  const currentIndex = themes.indexOf(currentTheme);
+  const nextTheme = themes[(currentIndex + 1) % themes.length];
+  
+  document.documentElement.setAttribute('data-theme', nextTheme);
+  
+  // Persist to cookie
+  document.cookie = 'theme=' + nextTheme + '; path=/; max-age=' + (30 * 24 * 60 * 60);
+  
+  // Also update via AJAX if possible
+  fetch('?page=settings&action=theme', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'theme=' + encodeURIComponent(nextTheme)
+  }).catch(err => console.log('Theme update failed:', err));
+}
+</script>

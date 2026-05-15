@@ -14,18 +14,22 @@ if (session_status() === PHP_SESSION_NONE) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (isset($_POST['theme'])) {
     Session::set('theme', $_POST['theme']);
+    // Persist to cookie for cross-session persistence
+    setcookie('theme', $_POST['theme'], time() + (30 * 24 * 60 * 60), '/');
   }
   
   if (isset($_POST['language'])) {
     Session::set('language', $_POST['language']);
+    // Persist to cookie for cross-session persistence
+    setcookie('language', $_POST['language'], time() + (30 * 24 * 60 * 60), '/');
   }
   
   $successMessage = "Settings saved successfully!";
 }
 
-// Get current settings
-$currentTheme = Session::get('theme', 'military');
-$currentLanguage = Session::get('language', 'en');
+// Get current settings (check cookies first, then session, then defaults)
+$currentTheme = $_COOKIE['theme'] ?? Session::get('theme', 'military');
+$currentLanguage = $_COOKIE['language'] ?? Session::get('language', 'en');
 
 $themes = [
   'light' => 'Light Mode',
