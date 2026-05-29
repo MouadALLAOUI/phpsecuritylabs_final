@@ -72,7 +72,7 @@ class Level1Reflected extends BaseChallenge
           <label for="search" class="block text-sm font-medium text-gray-700">Search agents by codename or real
             name</label>
           <div class="mt-1 flex rounded-md shadow-sm">
-            <input type="text" name="search" id="search"
+            <input type="text" name="search" id="search" maxlength="1000"
               class="flex-1 rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="e.g., GHOST, Mitchell, ..." value="<?= htmlspecialchars($this->searchQuery) ?>">
             <button type="submit"

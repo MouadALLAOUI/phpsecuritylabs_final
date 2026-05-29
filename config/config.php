@@ -2,6 +2,16 @@
 // -- config.php --
 // Centralized configuration for database credentials
 
+if (!function_exists('e')) {
+  function e(?string $value): string
+  {
+    if ($value === null) {
+      return '';
+    }
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+  }
+}
+
 if (!function_exists('loadEnv')) {
   function loadEnv($path = __DIR__ . '/../.env')
   {
@@ -56,4 +66,4 @@ try {
   // Fail closed by throwing an Exception and logging error
   error_log('Config fatal error: ' . $th->getMessage());
   throw new Exception('Database configuration baseline failure: ' . $th->getMessage());
-}
+}

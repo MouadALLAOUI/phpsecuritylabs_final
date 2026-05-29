@@ -12,9 +12,7 @@ class AuthTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        \App\Core\Session::start();
         $this->auth = new Auth();
     }
     

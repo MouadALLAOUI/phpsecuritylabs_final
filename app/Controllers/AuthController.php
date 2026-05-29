@@ -37,7 +37,7 @@ class AuthController
   public function handleLogin(): void
   {
     // CSRF protection for core authentication
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+    if (!isset($_POST['csrf_token']) || !Session::validateCsrfToken($_POST['csrf_token'])) {
       $_SESSION['login_error'] = 'Invalid security token';
       header('Location: ?page=login');
       exit;
@@ -45,10 +45,51 @@ class AuthController
     
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
+    $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $userKey = 'user_' . preg_replace('/[^a-z0-9_-]/', '', strtolower($username));
+    $ipKey = 'ip_' . preg_replace('/[^a-f0-9.:]/i', '', $clientIp);
+    
+    $throttleFile = ROOT . '/storage/logs/login_throttle.json';
+    $currentTime = time();
+    $window = 300; // 5 minutes
+    $maxAttempts = 5;
+    
+    // Load and clean throttle data
+    $throttleData = [];
+    if (file_exists($throttleFile)) {
+      $throttleData = json_decode(file_get_contents($throttleFile), true) ?? [];
+    }
+    
+    // Clean expired entries
+    foreach ($throttleData as $key => $timestamps) {
+      $throttleData[$key] = array_filter($timestamps, function ($ts) use ($currentTime, $window) {
+        return ($currentTime - $ts) < $window;
+      });
+    }
+    
+    // Check if throttled
+    $ipAttempts = count($throttleData[$ipKey] ?? []);
+    $userAttempts = count($throttleData[$userKey] ?? []);
+    
+    if ($ipAttempts >= $maxAttempts || $userAttempts >= $maxAttempts) {
+      $_SESSION['login_error'] = 'Too many login attempts. Please try again in 5 minutes.';
+      header('Location: ?page=login');
+      exit;
+    }
 
     if ($this->auth->login($username, $password)) {
+      // Clear throttling on success
+      unset($throttleData[$ipKey]);
+      unset($throttleData[$userKey]);
+      file_put_contents($throttleFile, json_encode($throttleData), LOCK_EX);
+      
       header('Location: ?page=profile');
     } else {
+      // Record failed attempt
+      $throttleData[$ipKey][] = $currentTime;
+      $throttleData[$userKey][] = $currentTime;
+      file_put_contents($throttleFile, json_encode($throttleData), LOCK_EX);
+      
       $_SESSION['login_error'] = 'Invalid credentials';
       header('Location: ?page=login');
     }
@@ -69,7 +110,17 @@ class AuthController
   public function showProfile(): void
   {
     if (!$this->auth->isAuthenticated()) {
-      header('Location: ?page=login');
+      http_response_code(401);
+      include_once ROOT . '/shared/header.php';
+      echo '<div class="lg:ml-64 p-6 min-h-[85vh] theme-transition flex items-center justify-center">
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center max-w-sm w-full mx-4 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1.5 bg-red-600"></div>
+                <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4 block"></i>
+                <h3 class="text-sm font-mono font-bold text-red-400 uppercase tracking-widest">Error 401: Unauthorized</h3>
+                <p class="text-xs text-slate-400 mt-2 leading-relaxed">Secure link authentication required. Please login as a valid operator.</p>
+              </div>
+            </div>';
+      include_once ROOT . '/shared/footer.php';
       exit;
     }
     $user = $this->auth->getUser();
@@ -80,16 +131,21 @@ class AuthController
   public function showLabs(): void
   {
     if (!$this->auth->isAuthenticated()) {
-      header('Location: ?page=login');
+      http_response_code(401);
+      include_once ROOT . '/shared/header.php';
+      echo '<div class="lg:ml-64 p-6 min-h-[85vh] theme-transition flex items-center justify-center">
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center max-w-sm w-full mx-4 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1.5 bg-red-600"></div>
+                <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4 block"></i>
+                <h3 class="text-sm font-mono font-bold text-red-400 uppercase tracking-widest">Error 401: Unauthorized</h3>
+                <p class="text-xs text-slate-400 mt-2 leading-relaxed">Secure link authentication required. Please login as a valid operator.</p>
+              </div>
+            </div>';
+      include_once ROOT . '/shared/footer.php';
       exit;
     }
     $user = $this->auth->getUser();
     $completed = $this->auth->getCompletedChallenges();
-    // Group completed challenges by lab for quick stats
-    // $completedMap = [];
-    // foreach ($completed as $c) {
-    //   $completedMap[$c['lab_name']][$c['challenge']] = true;
-    // }
     include_once ROOT . '/app/Views/labs.php';
   }
 
@@ -102,8 +158,32 @@ class AuthController
 
   public function showAdminDashboard(): void
   {
+    if (!$this->auth->isAuthenticated()) {
+      http_response_code(401);
+      include_once ROOT . '/shared/header.php';
+      echo '<div class="lg:ml-64 p-6 min-h-[85vh] theme-transition flex items-center justify-center">
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center max-w-sm w-full mx-4 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1.5 bg-red-600"></div>
+                <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4 block"></i>
+                <h3 class="text-sm font-mono font-bold text-red-400 uppercase tracking-widest">Error 401: Unauthorized</h3>
+                <p class="text-xs text-slate-400 mt-2 leading-relaxed">Secure link authentication required. Please login as a valid operator.</p>
+              </div>
+            </div>';
+      include_once ROOT . '/shared/footer.php';
+      exit;
+    }
     if (!$this->auth->isAdmin()) {
-      header('Location: ?page=home');
+      http_response_code(403);
+      include_once ROOT . '/shared/header.php';
+      echo '<div class="lg:ml-64 p-6 min-h-[85vh] theme-transition flex items-center justify-center">
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center max-w-sm w-full mx-4 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1.5 bg-red-600"></div>
+                <i class="fas fa-hand-holding-hand text-4xl text-red-500 mb-4 block"></i>
+                <h3 class="text-sm font-mono font-bold text-red-400 uppercase tracking-widest">Error 403: Forbidden</h3>
+                <p class="text-xs text-slate-400 mt-2 leading-relaxed">Commander credentials are required to access this roster database.</p>
+              </div>
+            </div>';
+      include_once ROOT . '/shared/footer.php';
       exit;
     }
     $users = Auth::getAllUsersProgress();
@@ -119,7 +199,7 @@ class AuthController
     }
 
     // CSRF protection for admin actions
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+    if (!isset($_POST['csrf_token']) || !Session::validateCsrfToken($_POST['csrf_token'])) {
       $_SESSION['admin_message'] = 'Invalid security token';
       header('Location: ?page=admin');
       exit;
@@ -127,6 +207,13 @@ class AuthController
 
     $userId = (int)($_POST['user_id'] ?? 0);
     $labName = $_POST['lab_name'] ?? '';
+
+    $validLabs = ['xss', 'sqli', 'file_upload', 'csrf', 'xxe', 'ssrf', 'idor', 'jwt', 'path_traversal', 'deserialization'];
+    if (!in_array($labName, $validLabs, true)) {
+      $_SESSION['admin_message'] = 'Invalid lab name';
+      header('Location: ?page=admin');
+      exit;
+    }
 
     if ($userId && $labName) {
       Auth::resetUserLab($userId, $labName);
@@ -147,15 +234,25 @@ class AuthController
       exit;
     }
 
+    // Enforce POST
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+      http_response_code(405);
+      echo 'Method Not Allowed';
+      exit;
+    }
+
     // CSRF protection for lab reset action
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
-      // Allow GET requests for reset (from labs page links), but require POST token for form submissions
-      // For backward compatibility with existing GET-based reset links, we skip CSRF check for GET
-      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $_SESSION['reset_error'] = 'Invalid security token';
-        header('Location: ?page=labs');
-        exit;
-      }
+    if (!isset($_POST['csrf_token']) || !Session::validateCsrfToken($_POST['csrf_token'])) {
+      $_SESSION['reset_error'] = 'Invalid security token';
+      header('Location: ?page=labs');
+      exit;
+    }
+
+    $validLabs = ['xss', 'sqli', 'file_upload', 'csrf', 'xxe', 'ssrf', 'idor', 'jwt', 'path_traversal', 'deserialization'];
+    if (!in_array($labName, $validLabs, true)) {
+      $_SESSION['reset_error'] = 'Invalid lab name';
+      header('Location: ?page=labs');
+      exit;
     }
 
     $userId = $this->auth->getUserId();

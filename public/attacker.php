@@ -5,16 +5,52 @@
  * Simulates a remote server collecting stolen cookies.
  * Sets a session flag to mark challenge as solved.
  */
-if (session_status() === PHP_SESSION_NONE) {
-  session_start();
+
+// Load environment configuration
+require_once __DIR__ . '/../config/config.php';
+
+if (!defined('ROOT')) {
+  define('ROOT', dirname(__DIR__));
 }
+
+// Register autoloader for App classes
+spl_autoload_register(function (string $class) {
+  $prefixMap = [
+    'App\\'  => ROOT . '/app/',
+    'Labs\\' => ROOT . '/labs/',
+  ];
+
+  foreach ($prefixMap as $prefix => $baseDir) {
+    $len = strlen($prefix);
+    if (strncmp($class, $prefix, $len) === 0) {
+      $relative = substr($class, $len);
+      $file = $baseDir . str_replace('\\', '/', $relative) . '.php';
+      if (file_exists($file)) {
+        require $file;
+        return;
+      }
+    }
+  }
+});
+
+$appEnv = getenv('APP_ENV') ?: ($_ENV['APP_ENV'] ?? 'production');
+if (trim(strtolower($appEnv)) !== 'development') {
+  http_response_code(403);
+  die('Error: The attacker exfiltration endpoint is disabled in production environments.');
+}
+
+\App\Core\Session::start();
 
 if (isset($_GET['cookie'])) {
   $stolenCookie = $_GET['cookie'];
   $level = $_GET['level'] ?? '1'; // default to level 1
   // Log the stolen cookie for demo (optional)
   $logEntry = date('[Y-m-d H:i:s]') . " [LEVEL $level] Stolen cookie: " . $stolenCookie . "\n";
-  file_put_contents(__DIR__ . '/../storage/logs/xss_hits.log', $logEntry, FILE_APPEND);
+  $logDir = __DIR__ . '/../storage/logs';
+  if (!is_dir($logDir)) {
+    mkdir($logDir, 0755, true);
+  }
+  file_put_contents($logDir . '/xss_hits.log', $logEntry, FILE_APPEND);
 
   // Mark the appropriate level as solved based on level parameter
   if ($level === '3') {

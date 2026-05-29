@@ -124,7 +124,7 @@
         <!-- Left Brand / Logo -->
         <div class="flex items-center space-x-3">
           <div class="bg-blue-600/10 p-2 rounded-lg border border-blue-500/20">
-            <i class="fas fa-shield-halved text-blue-500 text-xl"></i>
+            <i class="fas fa-shield-alt text-blue-500 text-xl"></i>
           </div>
           <span class="text-md font-bold tracking-wider text-slate-100 uppercase">Cyber Range Console</span>
         </div>

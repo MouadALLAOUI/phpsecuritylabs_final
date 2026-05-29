@@ -26,7 +26,11 @@ header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 
 // Basic rate limiting - 100 requests per minute per IP
-$rateLimitFile = __DIR__ . '/storage/logs/api_rate_limit.json';
+$logDir = __DIR__ . '/storage/logs';
+if (!is_dir($logDir)) {
+    mkdir($logDir, 0755, true);
+}
+$rateLimitFile = $logDir . '/api_rate_limit.json';
 $currentTime = time();
 $windowSize = 60; // 1 minute window
 $maxRequests = 100;
@@ -113,6 +117,10 @@ try {
             break;
             
         case 'challenge':
+            $enableVulns = getenv('LABS_ENABLE_INTENTIONAL_VULNS') ?: ($_ENV['LABS_ENABLE_INTENTIONAL_VULNS'] ?? 'false');
+            if (trim(strtolower($enableVulns)) !== 'true') {
+                throw new Exception('Vulnerable labs are disabled in this environment', 403);
+            }
             $lab = $_GET['lab'] ?? '';
             $lvl = $_GET['lvl'] ?? '';
             if (!$lab || !$lvl) {

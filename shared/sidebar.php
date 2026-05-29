@@ -1,17 +1,20 @@
 <?php
-
 /**
- * Sidebar navigation for the main application layout.
- * Use alongside header and footer.
+ * Sidebar navigation – auto-generated from LabCatalog.
+ * Replaces the previous static HTML list of lab links.
  */
 
-// Helper to determine if a menu item is active
+use App\Core\LabCatalog;
+
 $currentPage = $_GET['page'] ?? 'home';
-$currentLvl = $_GET['lvl'] ?? null;
+$currentLvl  = $_GET['lvl']  ?? null;
+
+$catalog = LabCatalog::all();
+$colors  = LabCatalog::$colorMap;
 ?>
 <aside class="hidden lg:block lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:z-40 bg-slate-900 border-r border-slate-800 shadow-xl theme-transition">
   <div class="flex flex-col h-full">
-    
+
     <!-- Sidebar Header Brand -->
     <div class="flex items-center h-16 px-5 border-b border-slate-800">
       <i class="fas fa-crosshairs text-blue-500 text-lg mr-3 animate-pulse"></i>
@@ -20,23 +23,21 @@ $currentLvl = $_GET['lvl'] ?? null;
 
     <!-- Navigation List -->
     <nav class="flex-1 overflow-y-auto mt-4 px-3 space-y-1.5 scrollbar-thin">
-      
+
+      <!-- Core navigation -->
       <div class="space-y-1">
-        <!-- Dashboard Link -->
         <a href="?page=home"
           class="flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition group <?= $currentPage === 'home' ? 'bg-blue-600/15 text-blue-400 border-l-2 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' ?>">
           <i class="fas fa-tachometer-alt w-5 h-5 mr-3 flex items-center justify-center text-sm <?= $currentPage === 'home' ? 'text-blue-400' : 'text-slate-400 group-hover:text-blue-400' ?>"></i>
           Dashboard
         </a>
 
-        <!-- All Labs Catalog -->
         <a href="?page=labs"
           class="flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition group <?= $currentPage === 'labs' ? 'bg-blue-600/15 text-blue-400 border-l-2 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' ?>">
-          <i class="fas fa-flask w-5 h-5 mr-3 flex items-center justify-center text-sm <?= $currentPage === 'labs' ? 'text-slate-400' : 'text-slate-400 group-hover:text-blue-400' ?>"></i>
+          <i class="fas fa-flask w-5 h-5 mr-3 flex items-center justify-center text-sm text-slate-400 group-hover:text-blue-400"></i>
           All Training Labs
         </a>
 
-        <!-- Leaderboard -->
         <a href="?page=leaderboard"
           class="flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition group <?= $currentPage === 'leaderboard' ? 'bg-blue-600/15 text-blue-400 border-l-2 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' ?>">
           <i class="fas fa-trophy w-5 h-5 mr-3 flex items-center justify-center text-sm text-yellow-500"></i>
@@ -44,49 +45,28 @@ $currentLvl = $_GET['lvl'] ?? null;
         </a>
       </div>
 
-      <!-- Categories Divider -->
+      <!-- Dynamically-generated lab links -->
       <div class="pt-5 pb-2">
         <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Active Directives</p>
       </div>
 
       <div class="space-y-1">
-        <!-- XSS Lab -->
-        <a href="?page=xss&lvl=1"
-          class="flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition group <?= ($currentPage === 'xss' && $currentLvl == 1) ? 'bg-blue-600/15 text-blue-400 border-l-2 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' ?>">
-          <i class="fas fa-code w-5 h-5 mr-3 flex items-center justify-center text-sm text-amber-500"></i>
-          XSS Lab (Level 1)
+        <?php foreach ($catalog as $slug => $lab):
+          $c       = $colors[$lab['color']] ?? $colors['blue'];
+          $isActive = $currentPage === $slug;
+        ?>
+        <a href="?page=<?= e($slug) ?>&lvl=1"
+          class="flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition group <?= $isActive ? 'bg-blue-600/15 text-blue-400 border-l-2 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' ?>">
+          <i class="fas <?= e($lab['icon']) ?> w-5 h-5 mr-3 flex items-center justify-center text-sm <?= $isActive ? 'text-blue-400' : $c['text'] . ' opacity-80 group-hover:opacity-100' ?>"></i>
+          <?= e($lab['short']) ?> Lab
+          <?php if ($lab['total'] > 1): ?>
+          <span class="ml-auto text-[9px] font-mono text-slate-500"><?= $lab['total'] ?>L</span>
+          <?php endif; ?>
         </a>
-
-        <!-- SQLi Lab -->
-        <a href="?page=sqli&lvl=1"
-          class="flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition group <?= ($currentPage === 'sqli' && $currentLvl == 1) ? 'bg-blue-600/15 text-blue-400 border-l-2 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' ?>">
-          <i class="fas fa-database w-5 h-5 mr-3 flex items-center justify-center text-sm text-red-500"></i>
-          SQL Injection Lab
-        </a>
-
-        <!-- File Upload Lab -->
-        <a href="?page=file_upload&lvl=1"
-          class="flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition group <?= ($currentPage === 'file_upload' && $currentLvl == 1) ? 'bg-blue-600/15 text-blue-400 border-l-2 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' ?>">
-          <i class="fas fa-upload w-5 h-5 mr-3 flex items-center justify-center text-sm text-emerald-500"></i>
-          File Upload Lab
-        </a>
-
-        <!-- CSRF Lab -->
-        <a href="?page=csrf&lvl=1"
-          class="flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition group <?= ($currentPage === 'csrf' && $currentLvl == 1) ? 'bg-blue-600/15 text-blue-400 border-l-2 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' ?>">
-          <i class="fas fa-exchange-alt w-5 h-5 mr-3 flex items-center justify-center text-sm text-purple-500"></i>
-          CSRF Lab
-        </a>
-
-        <!-- XXE Lab -->
-        <a href="?page=xxe&lvl=1"
-          class="flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide transition group <?= ($currentPage === 'xxe' && $currentLvl == 1) ? 'bg-blue-600/15 text-blue-400 border-l-2 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' ?>">
-          <i class="fas fa-file-code w-5 h-5 mr-3 flex items-center justify-center text-sm text-orange-500"></i>
-          XXE Lab
-        </a>
+        <?php endforeach; ?>
       </div>
 
-      <!-- Instructor Commands (visible only to admins) -->
+      <!-- Admin panel (admins only) -->
       <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
       <div class="pt-6 pb-2">
         <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-red-500">Command Control</p>
@@ -99,11 +79,13 @@ $currentLvl = $_GET['lvl'] ?? null;
         </a>
       </div>
       <?php endif; ?>
+
     </nav>
 
     <!-- Sidebar Footer -->
     <div class="px-5 py-4 border-t border-slate-800 bg-slate-950/40">
-      <p class="text-[10px] text-slate-500 uppercase tracking-widest">&copy; <?php echo date('Y'); ?> Cyber Range Console</p>
+      <p class="text-[10px] text-slate-500 uppercase tracking-widest">&copy; <?= date('Y') ?> Cyber Range Console</p>
     </div>
+
   </div>
 </aside>

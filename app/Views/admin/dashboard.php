@@ -113,7 +113,7 @@
   <?php if (isset($_SESSION['admin_message'])): ?>
     <div class="mil-hint-box mb-6" style="border-left-color: var(--mil-green); background-color: rgba(13, 148, 136, 0.05);">
       <strong class="text-teal-400"><i class="fas fa-check-circle"></i> Directives Succeeded</strong>
-      <p class="text-xs text-slate-400 mt-1"><?= htmlspecialchars($_SESSION['admin_message']) ?></p>
+      <p class="text-xs text-slate-400 mt-1"><?= e($_SESSION['admin_message']) ?></p>
     </div>
     <?php unset($_SESSION['admin_message']); ?>
   <?php endif; ?>
@@ -156,8 +156,8 @@
             <?php else: ?>
             <?php foreach ($users as $user): ?>
             <tr>
-              <td class="font-mono font-bold text-slate-200 uppercase tracking-wider"><?= htmlspecialchars($user['codename'] ?? 'N/A') ?></td>
-              <td class="font-mono text-slate-400">@<?= htmlspecialchars($user['username']) ?></td>
+              <td class="font-mono font-bold text-slate-200 uppercase tracking-wider"><?= e($user['codename'] ?? 'N/A') ?></td>
+              <td class="font-mono text-slate-400">@<?= e($user['username']) ?></td>
               <td>
                 <span class="instructor-badge <?= $user['xss_count'] > 0 ? 'active' : 'inactive' ?>">
                   <?= $user['xss_count'] ?>/3 Completed
@@ -177,7 +177,7 @@
               <td class="text-right">
                 <form method="POST" action="?page=admin&action=reset" style="display:inline;"
                   onsubmit="return confirm('Reset all progress for this operator? This action cannot be undone.');">
-                  <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32)) ?>">
+                  <input type="hidden" name="csrf_token" value="<?= \App\Core\Session::getCsrfToken() ?>">
                   <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                   <div class="flex justify-end gap-1.5">
                     <button type="submit" name="lab_name" value="xss" class="reset-btn" title="Reset XSS Progress">XSS</button>

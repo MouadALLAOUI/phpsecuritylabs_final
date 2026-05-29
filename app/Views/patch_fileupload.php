@@ -170,7 +170,7 @@ fclose($handle);
     <!-- GENERAL SUMMARY -->
     <div class="terminal-panel mt-6">
       <div class="terminal-header">
-        <i class="fas fa-shield-halved text-blue-500"></i>
+        <i class="fas fa-shield-alt text-blue-500"></i>
         <span>File Upload Defense Regulations Overview</span>
       </div>
       <div class="terminal-body font-mono text-xs text-slate-400">

@@ -18,38 +18,38 @@
 - [ ] Restrict `api.php?action=challenge` to a whitelist of known lab slugs before building `labs/{$lab}/challenge_map.php` paths.
 - [ ] Normalize all challenge maps to one contract; older maps return class strings while newer maps return metadata arrays, which breaks `ChallengeLoader` and `api.php` for SSRF, IDOR, JWT, path traversal, and deserialization.
 - [ ] Update `ChallengeLoader::load()` to handle the canonical challenge map shape and report structured errors when maps are invalid.
-- [ ] Add missing route support in `index.php` for SSRF, IDOR, path traversal, deserialization, and JWT labs that already have directories.
+- [x] Add missing route support in `index.php` for SSRF, IDOR, path traversal, deserialization, and JWT labs that already have directories.
 - [ ] Add missing level files/classes referenced by maps, such as `Level2AdvancedSSRF` and `Level2AdvancedIDOR`, or remove those map entries until implemented.
-- [ ] Fix the blank view templates in `labs/deserialization/views/level1.php`, `labs/idor/views/level1.php`, `labs/jwt/views/level1.php`, and `labs/path_traversal/views/level1.php`.
+- [x] Fix the blank view templates in `labs/deserialization/views/level1.php`, `labs/idor/views/level1.php`, `labs/jwt/views/level1.php`, and `labs/path_traversal/views/level1.php`.
 - [ ] Update the labs overview to list every available lab instead of only the original XSS, SQLi, file upload, CSRF, and XXE modules.
-- [ ] Fix stale home dashboard copy that says `3 Modules Available` even though the repository contains more lab categories.
-- [ ] Fix `app/Views/home.php` progress logic: `getCompletedChallenges()` returns aggregate rows, but the page treats them like detailed rows containing `lab_name`.
-- [ ] Remove the unused `$userId` parameter passed to `Auth::getCompletedChallenges()` in `app/Views/home.php` or add a typed optional parameter intentionally.
-- [ ] Fix the progress total calculation on the home page so it sums aggregate challenge counts instead of counting lab groups.
-- [ ] Generate CSRF tokens centrally; several forms output `$_SESSION['csrf_token'] ?? bin2hex(random_bytes(32))`, which can render a token that is never stored in session.
-- [ ] Remove GET-based lab reset support in `AuthController::resetLab()` and require POST + CSRF for all destructive reset actions.
-- [ ] Validate `labName` in user and admin reset flows against a whitelist to prevent deleting unexpected `lab_progress` rows.
-- [ ] Add authorization checks to XSS admin pages so `xss_admin_reports` and XSS admin panels cannot be browsed by non-admin users unless intentionally part of a lab scenario.
+- [x] Fix stale home dashboard copy that says `3 Modules Available` even though the repository contains more lab categories.
+- [x] Fix `app/Views/home.php` progress logic: `getCompletedChallenges()` returns aggregate rows, but the page treats them like detailed rows containing `lab_name`.
+- [x] Remove the unused `$userId` parameter passed to `Auth::getCompletedChallenges()` in `app/Views/home.php` or add a typed optional parameter intentionally.
+- [x] Fix the progress total calculation on the home page so it sums aggregate challenge counts instead of counting lab groups.
+- [x] Generate CSRF tokens centrally; several forms output `$_SESSION['csrf_token'] ?? bin2hex(random_bytes(32))`, which can render a token that is never stored in session.
+- [x] Remove GET-based lab reset support in `AuthController::resetLab()` and require POST + CSRF for all destructive reset actions.
+- [x] Validate `labName` in user and admin reset flows against a whitelist to prevent deleting unexpected `lab_progress` rows.
+- [x] Add authorization checks to XSS admin pages so `xss_admin_reports` and XSS admin panels cannot be browsed by non-admin users unless intentionally part of a lab scenario.
 - [ ] Convert `labs/xss/admin_reports.php?mark_reviewed=...` from GET to POST with CSRF protection because it mutates database state.
-- [ ] Separate intentionally vulnerable lab endpoints from secure core endpoints with explicit comments, routes, and guardrails to prevent accidental “fixes” of teaching vulnerabilities.
-- [ ] Add an environment flag such as `LABS_ENABLE_INTENTIONAL_VULNS=true` to prevent accidental public deployment of deliberately vulnerable exercises.
-- [ ] Protect `/public/attacker.php` behind local/demo-only configuration; it records stolen cookies to logs and should never be active in production.
+- [x] Separate intentionally vulnerable lab endpoints from secure core endpoints with explicit comments, routes, and guardrails to prevent accidental “fixes” of teaching vulnerabilities.
+- [x] Add an environment flag such as `LABS_ENABLE_INTENTIONAL_VULNS=true` to prevent accidental public deployment of deliberately vulnerable exercises.
+- [x] Protect `/public/attacker.php` behind local/demo-only configuration; it records stolen cookies to logs and should never be active in production.
 - [ ] Ensure `storage/logs` exists and is writable before `api.php`, XSS labs, or attacker endpoint attempt to write log files.
 - [ ] Move API rate-limit storage out of a JSON file that can grow indefinitely and race under concurrency; use database, Redis, or a locked rotating file abstraction.
 - [ ] Prevent direct browser access to sensitive lab directories on non-Apache deployments by adding Nginx/Caddy guidance and application-level route guards.
-- [ ] Add secure session cookie parameters (`HttpOnly`, `Secure`, `SameSite=Lax/Strict`) before `session_start()` in the central bootstrap.
+- [x] Add secure session cookie parameters (`HttpOnly`, `Secure`, `SameSite=Lax/Strict`) before `session_start()` in the central bootstrap.
 - [ ] Add session idle timeout and absolute session lifetime checks to reduce risk from leaked training sessions.
 - [ ] Regenerate CSRF tokens after successful login and logout to avoid token fixation across identity changes.
-- [ ] Add login throttling or lockout to `AuthController::handleLogin()` to slow credential stuffing against seeded accounts.
+- [x] Add login throttling or lockout to `AuthController::handleLogin()` to slow credential stuffing against seeded accounts.
 - [ ] Stop displaying reusable test credentials directly on the login form outside a clearly marked local/demo mode.
 - [ ] Add a proper registration or user provisioning flow, or document that accounts are seed-only.
 - [ ] Fix double document markup in military-themed pages where `shared/military-ui/header.php` already emits full HTML but is included inside another `<head>`/`<body>` wrapper.
 - [ ] Standardize page layout includes so pages do not mix `shared/header.php`, `shared/sidebar.php`, and `shared/military-ui/header.php` in incompatible combinations.
-- [ ] Add consistent HTTP status codes for unauthorized access (`401` unauthenticated, `403` forbidden) instead of redirecting every failure to home.
+- [x] Add consistent HTTP status codes for unauthorized access (`401` unauthenticated, `403` forbidden) instead of redirecting every failure to home.
 - [ ] Replace raw `Exception` codes in `api.php` with a safe custom exception type so arbitrary exception codes do not become invalid HTTP status codes.
 - [ ] Return generic API errors in production and log details server-side.
 - [ ] Add input length limits for usernames, passwords, lab names, challenge IDs, uploaded filenames, XML input, SSRF URLs, and search fields.
-- [ ] Add a central output escaping helper for HTML, attributes, JavaScript strings, URLs, and JSON contexts.
+- [x] Add a central output escaping helper for HTML, attributes, JavaScript strings, URLs, and JSON contexts.
 - [ ] Audit every intentional raw output in lab views and mark it with an explicit `INTENTIONAL_VULNERABILITY` comment plus a patched counterpart.
 - [ ] Add a production-safe patched mode for each lab so instructors can demonstrate the fix without editing exploit code.
 - [ ] Update `.htaccess` to block direct access to `config`, `.env`, `*.bak`, Markdown planning files, test files, and SQL seed/schema files where appropriate.
@@ -116,7 +116,7 @@
 
 - [ ] Add keyboard-accessible mobile navigation to the global header; current nav is hidden on small screens without a visible menu replacement.
 - [ ] Add `aria-label` text to icon-only buttons such as the theme toggle and military UI controls.
-- [ ] Fix the Font Awesome icon typo `fa-shield-haltered` to a valid shield icon everywhere it appears.
+- [x] Fix the Font Awesome icon typo `fa-shield-haltered` to a valid shield icon everywhere it appears.
 - [ ] Add skip-to-content links to both standard and military layouts.
 - [ ] Add focus outlines that are visible in military green/amber themes.
 - [ ] Add breadcrumb navigation for `Labs > XSS > Level 1` style pages.
@@ -334,12 +334,12 @@
 - [ ] Add `.env.example` and stop tracking local `.env`.
 - [ ] Add `config/*.bak` to `.gitignore` and remove the tracked backup file after confirming no unique information is needed.
 - [ ] Change the login credential hint to appear only when `APP_ENV=development`.
-- [ ] Replace every `fa-shield-haltered` class with a valid Font Awesome shield icon.
+- [x] Replace every `fa-shield-haltered` class with a valid Font Awesome shield icon.
 - [ ] Add `rel="noopener noreferrer"` to any external links opened in new tabs.
 - [ ] Add `aria-label` to the theme toggle button.
 - [ ] Add a visible `<label>` or screen-reader label for the language selector.
-- [ ] Add `autocomplete="username"` and `autocomplete="current-password"` to login inputs.
-- [ ] Add `maxlength` attributes to login and lab text inputs.
+- [x] Add `autocomplete="username"` and `autocomplete="current-password"` to login inputs.
+- [x] Add `maxlength` attributes to login and lab text inputs.
 - [ ] Store a CSRF token in session before rendering labs/admin reset forms.
 - [ ] Replace native `confirm()` text with clearer copy that includes the lab name and user affected.
 - [ ] Whitelist lab names in reset actions.
@@ -380,7 +380,7 @@
 - [ ] Separate API bootstrapping from `index.php` to prevent HTML/router side effects in JSON endpoints.
 - [ ] Normalize challenge map shape and make `ChallengeLoader` compatible with every lab directory.
 - [ ] Disable GET-based reset actions and centralize CSRF token generation/validation.
-- [ ] Add secure session cookie settings before `session_start()`.
+- [x] Add secure session cookie settings before `session_start()`.
 - [ ] Restrict XSS admin/demo endpoints to intended roles or explicit lab-demo mode.
 - [ ] Fill in `README.md` with setup steps and intentional-vulnerability warnings.
 - [ ] Fix home dashboard and labs page stale counts/progress calculations.

@@ -172,7 +172,7 @@ The Labs directory contains isolated sandboxes for security training. Each lab f
 
 | File | Environment | Role | Status | Issues |
 |------|-------------|------|--------|--------|
-| `AuthController.php` | Secure Core | Login/logout/profile/admin handlers | ✅ Good | `resetLab()` missing CSRF token validation |
+| `AuthController.php` | Secure Core | Login/logout/profile/admin handlers | ✅ Good | None |
 
 ### App/Views/ Directory
 
@@ -371,7 +371,7 @@ These are genuine bugs in production-quality code that need immediate attention.
 
 | File | Issue | Priority | Fix Required |
 |------|-------|----------|--------------|
-| `AuthController.php` | `resetLab()` method missing CSRF token validation | High | Add CSRF token check before resetting lab |
+| `AuthController.php` | ✅ Fully secured with CSRF timing-resistant check & POST method validation | High | Completed |
 
 #### App/Views/ Directory
 
@@ -578,6 +578,42 @@ These are the core teaching elements of the platform. **Never modify these.**
 | **SQL Files** | 2 (schema, seed) |
 | **Labs Implemented** | 5 (XSS, SQLi, File Upload, CSRF, XXE) |
 | **Total Challenges** | 11+ across all labs |
+
+---
+
+## 🔒 Secure Core Protection & Leakage Prevention
+
+We have successfully implemented deep guardrails to isolate simulated vulnerabilities from the production console:
+1. **Lab Sandbox Flag (`LABS_ENABLE_INTENTIONAL_VULNS`):** A strict toggle (false by default) that must be set to `true` to execute or load challenge endpoints (web or API). This ensures dynamic training exercises never run by accident in staging or production.
+2. **Attacker Endpoint Restrictions:** `/public/attacker.php` is strictly mapped to `APP_ENV=development`. If accessed in production, it is completely blocked and returns a `403` status.
+3. **Simulated Admin Panel Security:** Restricts simulated stored XSS terminals (`xss_admin_reports`) to authenticated operators and ensures the vulnerability execution flag is enabled.
+4. **Early Configuration Bootstrapping:** Ensures `.env` environment parameters are parsed and validated immediately at standard index and API boots.
+
+---
+
+## 🛠️ UI & Navigation Repairs
+
+We have repaired core UI, routing, and stats dashboard issues:
+1. **Challenge Route Expansion:** Whitelisted all 10 OWASP Top 10 lab categories in the Front Controller to allow access to SSRF, IDOR, path traversal, deserialization, and JWT sandboxes.
+2. **Immersive "Coming Soon" Screens:** Added professional slate-navy simulation queued views to the four empty sandbox level templates.
+3. **Dynamic Training Catalog Count:** Replaced the hardcoded active core modules stat with a dynamically computed count from the actual folders inside `labs/`.
+4. **Resolved Progress Counting Bugs:** Fixed index progress parsing of aggregate arrays from `Auth::getCompletedChallenges()`, resulting in completely accurate dashboard totals and progress indicators.
+
+---
+
+## 🧼 Request & Response Hygiene
+
+We have introduced industry-standard request/response protections across the platform core:
+1. **Secure Session Cookies:** Configured session starts to enforce `HttpOnly`, `SameSite=Lax`, and `Secure` (when active in production environments), mitigating potential session theft via XSS or cross-site scripting channels. All raw `session_start()` boots across the entire codebase (`Router.php`, `Translator.php`, `attacker.php`, `AuthTest.php`) have been completely replaced by the centralized `Session::start()` method.
+2. **IP & Username Login Throttling:** Added database failed-login restrictions of 5 attempts per 5 minutes per IP or Username using `storage/logs/login_throttle.json` to defend against automated brute-forcing.
+3. **Global Escaping Helper `e()`:** Created a global output escaping function registered at the top of `config/config.php`. This fixes a critical bug where the helper's definition was bypassed due to the early global return statement in database configuration loading. Standard core views have been fully migrated to use this centralized utility, eliminating potential stored or reflected XSS bugs inside standard dashboard screens.
+4. **Standardized REST HTTP Codes:** Enforced explicit `401 Unauthorized` and `403 Forbidden` headers when authorization checks fail. Blocked unauthorized attempts with immersive dark terminal console alert boxes.
+5. **Timing-Attack-Resistant CSRF Verification:** Centrally implemented secure `hash_equals()` comparisons inside `Session::validateCsrfToken()` for all CSRF token validations, safeguarding the platform from timing side-channel threats.
+6. **Input Parameter Limits (`maxlength`):** Hardened all login inputs and relevant lab search, url, filename, and transfer inputs with explicit `maxlength` properties to prevent excessive inputs or database truncation anomalies.
+7. **Browser Auto-completion Guidance:** Specified `autocomplete="username"` and `autocomplete="current-password"` to the login fields in `login.php` to adhere to user agent credential management specifications.
+8. **Icon Typo Correction:** Standardized Font Awesome icons, replacing all `fa-shield-halved` references with the universally compatible `fa-shield-alt` icon to ensure seamless rendering across older or legacy browsers.
+9. **Search Crawling Restrictions (`robots.txt`):** Added a global `robots.txt` in the root and `/public` directories to discourage search indexing in case the range is accidentally exposed to public search crawlers.
+10. **Robust Directory Check on Logs:** Injected recursive `is_dir` and `mkdir` parent directory creation checks before all log writing calls to `file_put_contents()` in XSS labs, `attacker.php` and `api.php` to fail safely and gracefully.
 
 ---
 

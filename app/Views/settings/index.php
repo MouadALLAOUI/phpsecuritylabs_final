@@ -10,23 +10,37 @@ if (session_status() === PHP_SESSION_NONE) {
   Session::start();
 }
 
+// Handle session status messages
+if (isset($_SESSION['settings_success'])) {
+  $successMessage = $_SESSION['settings_success'];
+  unset($_SESSION['settings_success']);
+}
+if (isset($_SESSION['settings_error'])) {
+  $errorMessage = $_SESSION['settings_error'];
+  unset($_SESSION['settings_error']);
+}
+
 // Handle theme change
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (isset($_POST['theme'])) {
-    Session::set('theme', $_POST['theme']);
-    setcookie('theme', $_POST['theme'], time() + (30 * 24 * 60 * 60), '/');
-  }
-  
-  if (isset($_POST['language'])) {
-    $lang = $_POST['language'];
-    if (!in_array($lang, ['en', 'fr'])) {
-      $lang = 'en';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_GET['action'])) {
+  if (!isset($_POST['csrf_token']) || !Session::validateCsrfToken($_POST['csrf_token'])) {
+    $errorMessage = "Invalid security token";
+  } else {
+    if (isset($_POST['theme'])) {
+      Session::set('theme', $_POST['theme']);
+      setcookie('theme', $_POST['theme'], time() + (30 * 24 * 60 * 60), '/');
     }
-    Session::set('lang', $lang);
-    setcookie('lang', $lang, time() + (30 * 24 * 60 * 60), '/');
+    
+    if (isset($_POST['language'])) {
+      $lang = $_POST['language'];
+      if (!in_array($lang, ['en', 'fr'])) {
+        $lang = 'en';
+      }
+      Session::set('lang', $lang);
+      setcookie('lang', $lang, time() + (30 * 24 * 60 * 60), '/');
+    }
+    
+    $successMessage = "Settings saved successfully!";
   }
-  
-  $successMessage = "Settings saved successfully!";
 }
 
 $currentTheme = $_COOKIE['theme'] ?? Session::get('theme', 'military');
@@ -62,7 +76,14 @@ include_once ROOT . '/shared/sidebar.php';
     <?php if (isset($successMessage)): ?>
     <div class="bg-teal-950/40 border border-teal-500/20 p-4 rounded-xl flex items-start space-x-3 text-teal-200">
       <i class="fas fa-check-circle text-teal-400 mt-0.5"></i>
-      <p class="text-xs font-semibold"><?= htmlspecialchars($successMessage) ?></p>
+      <p class="text-xs font-semibold"><?= e($successMessage) ?></p>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($errorMessage)): ?>
+    <div class="bg-red-950/40 border border-red-500/20 p-4 rounded-xl flex items-start space-x-3 text-red-200">
+      <i class="fas fa-exclamation-circle text-red-400 mt-0.5"></i>
+      <p class="text-xs font-semibold"><?= e($errorMessage) ?></p>
     </div>
     <?php endif; ?>
 
@@ -73,6 +94,7 @@ include_once ROOT . '/shared/sidebar.php';
       </h2>
       
       <form method="POST" class="space-y-6">
+        <input type="hidden" name="csrf_token" value="<?= \App\Core\Session::getCsrfToken() ?>">
         <div>
           <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Select Console Skin</label>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -110,6 +132,7 @@ include_once ROOT . '/shared/sidebar.php';
       </h2>
       
       <form method="POST" class="space-y-4">
+        <input type="hidden" name="csrf_token" value="<?= \App\Core\Session::getCsrfToken() ?>">
         <div class="space-y-2">
           <label for="language" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Interface Language</label>
           <select name="language" id="language" 
@@ -158,6 +181,7 @@ include_once ROOT . '/shared/sidebar.php';
       </h2>
       
       <form method="POST" action="?page=settings&action=reset" onsubmit="return confirm('Clear all settings flags? This action is irreversible.');">
+        <input type="hidden" name="csrf_token" value="<?= \App\Core\Session::getCsrfToken() ?>">
         <p class="text-xs text-slate-400 leading-relaxed mb-4">
           This operation resets all personalized variables, layouts, language parameters, and styles to their default settings.
         </p>

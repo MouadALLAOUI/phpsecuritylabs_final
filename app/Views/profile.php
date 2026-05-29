@@ -11,11 +11,11 @@ include_once ROOT . '/shared/sidebar.php';
         <i class="fas fa-user-shield"></i>
       </div>
       <div class="space-y-2 flex-1">
-        <h1 class="text-xl font-bold text-slate-100 uppercase tracking-wide"><?= htmlspecialchars($user['username']) ?></h1>
-        <p class="text-xs text-slate-400 font-mono"><?= htmlspecialchars($user['email']) ?></p>
+        <h1 class="text-xl font-bold text-slate-100 uppercase tracking-wide"><?= e($user['username']) ?></h1>
+        <p class="text-xs text-slate-400 font-mono"><?= e($user['email']) ?></p>
         <div class="flex flex-wrap justify-center sm:justify-start gap-2 pt-1">
           <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-950 border border-slate-800 text-slate-300">
-            Clearance: <?= ucfirst(htmlspecialchars($user['role'])) ?>
+            Clearance: <?= ucfirst(e($user['role'])) ?>
           </span>
           <?php if ($user['is_admin']): ?>
             <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-950/20 border border-red-500/20 text-red-400">
@@ -41,7 +41,7 @@ include_once ROOT . '/shared/sidebar.php';
             <div class="border-l-4 border-teal-500 bg-slate-950/40 p-4 rounded-r-lg border border-slate-850 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <div>
                 <p class="text-xs font-bold text-slate-200 uppercase tracking-wider">
-                  <?= strtoupper(htmlspecialchars($challenge['lab_name'])) ?> &mdash; <?= htmlspecialchars($challenge['challenge']) ?>
+                  <?= strtoupper(e($challenge['lab_name'])) ?> &mdash; <?= e($challenge['challenge']) ?>
                 </p>
                 <p class="text-[10px] text-slate-500 font-mono mt-1">Audit log completion ID: #<?= bin2hex(random_bytes(4)) ?></p>
               </div>

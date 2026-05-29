@@ -134,8 +134,8 @@
           <?php else: ?><i class="fas fa-award text-slate-600 text-sm"></i><?php endif; ?>
         </div>
         <div class="player-details">
-          <div class="player-codename"><?= htmlspecialchars($operator['codename'] ?? 'Unknown') ?></div>
-          <div class="player-username">@<?= htmlspecialchars($operator['username']) ?></div>
+          <div class="player-codename"><?= e($operator['codename'] ?? 'Unknown') ?></div>
+          <div class="player-username">@<?= e($operator['username']) ?></div>
         </div>
         <div class="player-score"><?= $operator['completed_count'] ?> Completed</div>
       </div>
