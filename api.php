@@ -130,7 +130,10 @@ try {
                 throw new Exception('Level not found', 404);
             }
             $class = $map[$lvl];
-            if (!class_exists($class)) {
+            if (is_array($class)) {
+                $class = $class['class'] ?? null;
+            }
+            if (!$class || !class_exists($class)) {
                 throw new Exception('Challenge class not found', 500);
             }
             $challenge = new $class();
