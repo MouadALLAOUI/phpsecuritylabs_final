@@ -7,8 +7,39 @@ class Session
   public static function start(): void
   {
     if (session_status() === PHP_SESSION_NONE) {
+      $secure = false;
+      $appEnv = getenv('APP_ENV') ?: ($_ENV['APP_ENV'] ?? 'production');
+      if (trim(strtolower($appEnv)) === 'production') {
+        $secure = true;
+      }
+      session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '',
+        'secure' => $secure,
+        'httponly' => true,
+        'samesite' => 'Lax'
+      ]);
       session_start();
     }
+    if (empty($_SESSION['csrf_token'])) {
+      $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+  }
+
+  public static function getCsrfToken(): string
+  {
+    self::start();
+    return $_SESSION['csrf_token'];
+  }
+
+  public static function validateCsrfToken(?string $token): bool
+  {
+    if (empty($token)) {
+      return false;
+    }
+    self::start();
+    return hash_equals($_SESSION['csrf_token'] ?? '', $token);
   }
 
   public static function set(string $key, $value): void

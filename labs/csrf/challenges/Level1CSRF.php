@@ -109,7 +109,7 @@ class Level1CSRF extends BaseChallenge
         <div class="form-group">
           <label for="transfer_to">Recipient Agent Codename:</label>
           <input type="text" id="transfer_to" name="transfer_to" required 
-                 class="mil-input" placeholder="Enter agent codename">
+                 class="mil-input" placeholder="Enter agent codename" maxlength="100">
         </div>
         <div class="form-group">
           <label for="amount">Amount (credits):</label>

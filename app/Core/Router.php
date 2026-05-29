@@ -45,9 +45,9 @@ class Router
       return;
     }
     if ($page === 'labs') {
-      // Check if reset is requested
-      if (isset($_GET['reset'])) {
-        $labName = $_GET['reset'];
+      // Check if reset is requested via POST
+      if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset'])) {
+        $labName = $_POST['reset'];
         $authController->resetLab($labName);
         return;
       }
@@ -61,6 +61,11 @@ class Router
     }
     if ($page === 'admin') {
       if ($action === 'reset') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+          http_response_code(405);
+          echo 'Method Not Allowed';
+          exit;
+        }
         $authController->handleAdminReset();
       } else {
         $authController->showAdminDashboard();
@@ -70,6 +75,27 @@ class Router
     
     // Handle settings actions (language, theme)
     if ($page === 'settings') {
+      if ($action === 'reset') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+          http_response_code(405);
+          echo 'Method Not Allowed';
+          exit;
+        }
+        if (!isset($_POST['csrf_token']) || !\App\Core\Session::validateCsrfToken($_POST['csrf_token'])) {
+          \App\Core\Session::start();
+          $_SESSION['settings_error'] = 'Invalid security token';
+          header('Location: ?page=settings');
+          exit;
+        }
+        \App\Core\Session::start();
+        unset($_SESSION['theme']);
+        unset($_SESSION['lang']);
+        setcookie('theme', '', time() - 3600, '/');
+        setcookie('lang', '', time() - 3600, '/');
+        $_SESSION['settings_success'] = 'Console profile reset successful.';
+        header('Location: ?page=settings');
+        exit;
+      }
       if ($action === 'language') {
         $lang = $_POST['language'] ?? 'en';
         // Validate language is only 'en' or 'fr'
@@ -77,9 +103,7 @@ class Router
           $lang = 'en';
         }
         // Store in session
-        if (session_status() === PHP_SESSION_NONE) {
-          session_start();
-        }
+        \App\Core\Session::start();
         $_SESSION['lang'] = $lang;
         // Store in cookie for 30 days
         setcookie('lang', $lang, time() + (30 * 24 * 60 * 60), '/');
@@ -92,9 +116,7 @@ class Router
         if (!in_array($theme, ['light', 'dark', 'military'])) {
           $theme = 'military';
         }
-        if (session_status() === PHP_SESSION_NONE) {
-          session_start();
-        }
+        \App\Core\Session::start();
         $_SESSION['theme'] = $theme;
         setcookie('theme', $theme, time() + (30 * 24 * 60 * 60), '/');
         header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '?page=home'));
@@ -104,6 +126,30 @@ class Router
       include_once ROOT . '/app/Views/settings/index.php';
       return;
     }
+    if ($page === 'xss_admin_reports') {
+      $enableVulns = getenv('LABS_ENABLE_INTENTIONAL_VULNS') ?: ($_ENV['LABS_ENABLE_INTENTIONAL_VULNS'] ?? 'false');
+      if (trim(strtolower($enableVulns)) !== 'true') {
+        http_response_code(403);
+        die('Error: Vulnerable labs are disabled in this environment (LABS_ENABLE_INTENTIONAL_VULNS is false).');
+      }
+
+      \App\Core\Session::start();
+      if (!isset($_SESSION['user_id'])) {
+        http_response_code(401);
+        include_once ROOT . '/shared/header.php';
+        echo '<div class="lg:ml-64 p-6 min-h-[85vh] theme-transition flex items-center justify-center">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center max-w-sm w-full mx-4 shadow-2xl relative overflow-hidden">
+                  <div class="absolute top-0 left-0 right-0 h-1.5 bg-red-600"></div>
+                  <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4 block"></i>
+                  <h3 class="text-sm font-mono font-bold text-red-400 uppercase tracking-widest">Error 401: Unauthorized</h3>
+                  <p class="text-xs text-slate-400 mt-2 leading-relaxed">Secure link authentication required. Please login as a valid operator.</p>
+                </div>
+              </div>';
+        include_once ROOT . '/shared/footer.php';
+        exit;
+      }
+    }
+
     if ($page === 'patch_xss' || $page === 'patch_sqli' || $page === 'patch_fileupload') {
       $this->renderPatchReport($page);
       return;

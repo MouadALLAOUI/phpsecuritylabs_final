@@ -2,6 +2,16 @@
 // -- config.php --
 // Centralized configuration for database credentials
 
+if (!function_exists('e')) {
+  function e(?string $value): string
+  {
+    if ($value === null) {
+      return '';
+    }
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+  }
+}
+
 if (!function_exists('loadEnv')) {
   function loadEnv($path = __DIR__ . '/../.env')
   {
@@ -26,14 +36,26 @@ if (!function_exists('loadEnv')) {
 
 try {
   loadEnv();
-  $host = $_ENV['DB_HOST'] ?? 'localhost';
-  $db   = $_ENV['DB_NAME'] ?? 'php_security_labs_app';
-  $db_labs   = $_ENV['DB_LABS_NAME'] ?? 'php_security_labs_challenges';
-  $user = $_ENV['DB_USER'] ?? 'root';
-  $pass = $_ENV['DB_PASS'] ?? '';
+
+  // 1. Fail closed if APP_DEBUG is missing
+  if (!isset($_ENV['APP_DEBUG'])) {
+    throw new Exception("APP_DEBUG is missing in .env configurations.");
+  }
+
+  // 2. Fail closed if explicit DB host, name, user, or pass are missing
+  if (!isset($_ENV['DB_HOST']) || !isset($_ENV['DB_NAME']) || !isset($_ENV['DB_LABS_NAME']) || !isset($_ENV['DB_USER']) || !isset($_ENV['DB_PASS'])) {
+    throw new Exception("Explicit database configuration variables (DB_HOST, DB_NAME, DB_LABS_NAME, DB_USER, DB_PASS) are required in .env.");
+  }
+
+  $host = $_ENV['DB_HOST'];
+  $db   = $_ENV['DB_NAME'];
+  $db_labs = $_ENV['DB_LABS_NAME'];
+  $user = $_ENV['DB_USER'];
+  $pass = $_ENV['DB_PASS'];
+
   return [
     'host'     => $host,
-    'port'     => '3306',
+    'port'     => $_ENV['DB_PORT'] ?? '3306',
     'dbname'   => $db,
     'dbname_labs'   => $db_labs,
     'user'     => $user,
@@ -41,16 +63,7 @@ try {
     'charset'  => 'utf8mb4',
   ];
 } catch (\Throwable $th) {
-  // Fallback to default values if .env is missing or unreadable
-  // In production, you should ensure .env exists and is properly configured
-  error_log('Config warning: Using default database configuration. ' . $th->getMessage());
-  return [
-    'host'     => 'localhost',
-    'port'     => '3306',
-    'dbname'   => 'php_security_labs_app',
-    'dbname_labs'   => 'php_security_labs_challenges',
-    'user'     => 'root',
-    'password' => '',
-    'charset'  => 'utf8mb4',
-  ];
-}
+  // Fail closed by throwing an Exception and logging error
+  error_log('Config fatal error: ' . $th->getMessage());
+  throw new Exception('Database configuration baseline failure: ' . $th->getMessage());
+}

@@ -113,7 +113,7 @@ class Level1ReflectedMilitary extends BaseChallenge
               <i class="fas fa-search"></i> SEARCH QUERY
             </label>
             <input type="text" name="search" class="mil-input" placeholder="Search by codename or real name..."
-              value="<?= htmlspecialchars($this->searchQuery) ?>" autocomplete="off">
+              value="<?= htmlspecialchars($this->searchQuery) ?>" autocomplete="off" maxlength="1000">
           </div>
 
           <button type="submit" class="mil-button">

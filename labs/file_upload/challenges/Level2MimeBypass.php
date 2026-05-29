@@ -15,12 +15,11 @@ use App\Core\ChallengeInterface;
 use App\Core\BaseChallenge;
 use App\Core\Session;
 
-class Level2MimeBypass extends BaseChallenge implements ChallengeInterface
+class Level2MimeBypass extends BaseChallenge
 {
-    private $completed = false;
-    private $uploadDir;
-    private $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    private $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    private string $uploadDir = '';
+    private array $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    private array $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
     public function __construct()
     {
@@ -31,7 +30,7 @@ class Level2MimeBypass extends BaseChallenge implements ChallengeInterface
         
         // Check if already solved via session
         if (Session::get('file_upload_lvl2_solved') === true) {
-            $this->completed = true;
+            $this->completed = true;  // uses protected $completed from BaseChallenge
         }
     }
 

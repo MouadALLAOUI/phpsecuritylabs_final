@@ -2,7 +2,7 @@
 
 /**
  * MIL-OPS CONTROL SYSTEM - Military Theme Header
- * With dynamic sidebar configuration
+ * Redesigned into modern Cyber Range Console
  */
 
 // Generate dynamic agent codename (only if not already set in this session)
@@ -38,37 +38,37 @@ $sidebarMenu = [
   'agents' => [
     'page' => 'sqli',
     'lvl' => 1,
-    'title' => 'AGENTS',
+    'title' => 'AGENTS SQLi',
     'icon' => 'user-secret',
     'badge' => 'SQLi'
   ],
   'cases' => [
     'page' => 'xss',
     'lvl' => 1,
-    'title' => 'CASES',
+    'title' => 'REFLECTED XSS',
     'icon' => 'folder-open',
-    'badge' => 'XSS'
+    'badge' => 'XSS L1'
   ],
   'communications' => [
     'page' => 'xss',
     'lvl' => 3,
-    'title' => 'COMMUNICATIONS',
+    'title' => 'DOM XSS',
     'icon' => 'envelope',
-    'badge' => 'DOM XSS'
+    'badge' => 'DOM L3'
   ],
   'reports' => [
     'page' => 'xss',
     'lvl' => 2,
-    'title' => 'REPORTS',
+    'title' => 'STORED XSS',
     'icon' => 'file-alt',
-    'badge' => 'Stored XSS'
+    'badge' => 'XSS L2'
   ],
   'secrets' => [
     'page' => 'sqli',
     'lvl' => 2,
-    'title' => 'SECRETS',
+    'title' => 'SQLi UNION',
     'icon' => 'key',
-    'badge' => 'SQLi Union'
+    'badge' => 'SQLi L2'
   ],
   'uploads' => [
     'page' => 'file_upload',
@@ -96,95 +96,111 @@ $sidebarMenu = [
     'lvl' => null,
     'title' => 'AUDIT LOGS',
     'icon' => 'history',
-    'badge' => 'Admin Panel'
+    'badge' => 'Admin'
   ]
 ];
 
 // Helper to check if a menu item is active
-function isMenuItemActive($item)
-{
-  $currentPage = $_GET['page'] ?? 'home';
-  $currentLvl = $_GET['lvl'] ?? null;
+if (!function_exists('isMenuItemActive')) {
+  function isMenuItemActive($item)
+  {
+    $currentPage = $_GET['page'] ?? 'home';
+    $currentLvl = $_GET['lvl'] ?? null;
 
-  if ($item['page'] === 'xss_admin_reports') {
-    return $currentPage === 'xss_admin_reports';
+    if ($item['page'] === 'xss_admin_reports') {
+      return $currentPage === 'xss_admin_reports';
+    }
+    return ($currentPage === $item['page'] && ($item['lvl'] === null || $currentLvl == $item['lvl']));
   }
-  return ($currentPage === $item['page'] && ($item['lvl'] === null || $currentLvl == $item['lvl']));
 }
 ?>
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-mil-dark">
+<html lang="en" class="h-full bg-slate-950">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MIL-OPS CONTROL SYSTEM | Classified Terminal</title>
+  <title>Cyber Range Console | Classified Training Area</title>
   <link rel="icon" type="image/svg+xml" href="<?= $baseUrl ?>/public/favicon.svg">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="<?= $baseUrl ?>/shared/military-ui/mil-ops.css">
+  
   <style>
-  body.mil-body {
-    background: #0b0f14;
-    color: #e0e0e0;
-    margin: 0;
-    font-family: 'Courier New', monospace;
-  }
-
-  .mil-top-bar {
-    background: #111820;
-    border-bottom: 2px solid #00ff41;
-  }
-
-  .mil-sidebar {
-    background: #070a0d;
-  }
-
-  .mil-main-content {
-    margin-left: 260px;
-    padding: 20px;
-  }
+    /* Support theme-specific classes in challenge views */
+    body.theme-light {
+      --bg-main: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-card: #f1f5f9;
+      --border-color: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-dim: #64748b;
+    }
+    body.theme-dark {
+      --bg-main: #030712;
+      --bg-surface: #0f172a;
+      --bg-card: #1f2937;
+      --border-color: #374151;
+      --text-primary: #f3f4f6;
+      --text-secondary: #d1d5db;
+      --text-dim: #9ca3af;
+    }
   </style>
 </head>
 
-<body class="mil-body">
-  <div class="crt-overlay"></div>
+<body class="mil-body theme-military">
 
+  <!-- TOP HEADER CONSOLE -->
   <header class="mil-top-bar">
     <div class="top-bar-left">
-      <i class="fas fa-shield-haltered mil-icon"></i>
-      <span class="system-title">MIL-OPS CONTROL SYSTEM</span>
-      <span class="connection-status secure"><i class="fas fa-lock"></i> SECURE LINK ACTIVE</span>
+      <div class="bg-blue-600/15 p-1.5 rounded border border-blue-500/20 flex items-center justify-center">
+        <i class="fas fa-crosshairs text-blue-500"></i>
+      </div>
+      <span class="system-title">Cyber Range Console</span>
+      <span class="connection-status secure"><i class="fas fa-circle text-[8px]"></i> SECURE LINK ACTIVE</span>
     </div>
+    
     <div class="top-bar-right">
       <!-- Language Selector -->
       <select id="languageSelector" onchange="changeLanguage(this.value)" 
-        class="bg-gray-800 text-green-400 border border-green-700 rounded px-2 py-1 text-xs mr-2 focus:outline-none focus:border-green-500">
+        class="bg-slate-900 text-slate-300 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500 cursor-pointer">
         <option value="en" <?= (($_SESSION['lang'] ?? $_COOKIE['lang'] ?? 'en') === 'en') ? 'selected' : '' ?>>EN</option>
         <option value="fr" <?= (($_SESSION['lang'] ?? $_COOKIE['lang'] ?? 'en') === 'fr') ? 'selected' : '' ?>>FR</option>
       </select>
       
       <!-- Theme Toggle -->
-      <button onclick="toggleTheme()" 
-        class="bg-gray-800 text-green-400 border border-green-700 rounded px-2 py-1 text-xs mr-2 hover:bg-gray-700 focus:outline-none">
-        <i class="fas fa-adjust"></i>
+      <button onclick="toggleTheme()" aria-label="Cycle theme"
+        class="bg-slate-900 text-slate-300 border border-slate-700 rounded p-1 hover:bg-slate-800 focus:outline-none flex items-center justify-center">
+        <i class="fas fa-adjust text-xs px-1"></i>
       </button>
       
-      <div class="agent-info"><span class="agent-label">AGENT:</span><span
-          class="agent-codename"><?= htmlspecialchars($agentCodename) ?></span></div>
-      <div class="clearance-info"><span class="clearance-label">CLEARANCE:</span><span
-          class="clearance-level"><?= htmlspecialchars($currentClearance) ?></span></div>
+      <div class="agent-info hidden sm:flex">
+        <span class="agent-label">AGENT:</span>
+        <span class="agent-codename"><?= htmlspecialchars($agentCodename) ?></span>
+      </div>
+      
+      <div class="clearance-info hidden sm:flex">
+        <span class="clearance-label">CLEARANCE:</span>
+        <span class="clearance-level"><?= htmlspecialchars($currentClearance) ?></span>
+      </div>
+      
       <div class="system-time" id="systemTime">--:--:--</div>
     </div>
   </header>
 
+  <!-- SIDEBAR SELECTOR -->
   <aside class="mil-sidebar">
-    <div class="sidebar-header"><i class="fas fa-crosshairs"></i><span>MISSION SELECTOR</span></div>
+    <div class="sidebar-header">
+      <i class="fas fa-terminal"></i>
+      <span>Mission Selector</span>
+    </div>
+    
     <nav class="nav-menu">
       <ul class="nav-list">
         <?php foreach ($sidebarMenu as $item): ?>
         <?php
-          // Build URL
+          // Build challenge navigation URL
           if ($item['page'] === 'xss_admin_reports') {
             $url = $baseUrl . '/?page=xss_admin_reports';
           } else {
@@ -198,7 +214,7 @@ function isMenuItemActive($item)
         <li class="nav-item <?= $isActive ? 'active' : '' ?>">
           <a href="<?= $url ?>">
             <i class="fas fa-<?= $item['icon'] ?>"></i>
-            <?= $item['title'] ?>
+            <span><?= $item['title'] ?></span>
             <?php if ($item['badge']): ?>
             <span class="badge"><?= $item['badge'] ?></span>
             <?php endif; ?>
@@ -207,10 +223,12 @@ function isMenuItemActive($item)
         <?php endforeach; ?>
       </ul>
     </nav>
+    
     <div class="sidebar-footer">
       <div class="system-log-mini" id="systemLogMini"></div>
-      <p class="classification-marking">UNAUTHORIZED ACCESS PROHIBITED</p>
+      <p class="classification-marking">CLASSIFIED OPERATIONS AREA</p>
     </div>
   </aside>
 
+  <!-- Content starts here -->
   <main class="mil-main-content">

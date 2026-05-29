@@ -1,10 +1,37 @@
 # TODO List
 
-- [ ] add simulation db to Database.php
-
----
-
 ## 🔧 Fixes Needed
+
+### 🔴 CSRF & POST Hardening — Completed ✅
+- [x] Convert lab progress reset actions from GET to POST (`app/Core/Router.php`, `app/Controllers/AuthController.php`, `app/Views/labs.php`)
+- [x] Enforce POST on administrative operator lab resets (`app/Core/Router.php`, `app/Controllers/AuthController.php`, `app/Views/admin/dashboard.php`)
+- [x] Implement strict whitelisting of lab names in reset actions to prevent deleting arbitrary metadata rows (`app/Controllers/AuthController.php`)
+- [x] Centralize CSRF token generation in `Session::start()` and `Session::getCsrfToken()` and validate using secure timing-attack-resistant `hash_equals()` in `Session::validateCsrfToken()`
+- [x] Protect theme/language updates and profile resets under the Settings dashboard with full CSRF verification (`app/Views/settings/index.php`)
+
+### 🔴 Secure Core Protection & Leakage Prevention — Completed ✅
+- [x] Restrict XSS simulated admin review pages (`?page=xss_admin_reports`) based on authentication and environment configuration flags (`app/Core/Router.php`)
+- [x] Lock down the attacker cookie exfiltration script (`/public/attacker.php`) to `APP_ENV=development` mode only (`public/attacker.php`)
+- [x] Introduce `LABS_ENABLE_INTENTIONAL_VULNS` flag (`false` by default) to restrict running dynamic training sandboxes in production environments (`index.php`, `api.php`, `app/Core/Router.php`)
+- [x] Boot environment settings early in index and API requests (`index.php`, `api_bootstrap.php`)
+
+### 🔴 UI & Navigation Repairs — Completed ✅
+- [x] Expand allowed challenge routing array to include all 10 OWASP Top 10 sandboxes (`index.php`)
+- [x] Deploy beautifully themed "Simulation Queued" custom cards to the four empty sandbox level view templates (`labs/idor/views/level1.php`, `labs/jwt/views/level1.php`, `labs/path_traversal/views/level1.php`, `labs/deserialization/views/level1.php`)
+- [x] Calculate training lab metric count dynamically based on the subfolders in the `labs/` directory (`app/Views/home.php`)
+- [x] Repair homepage progress parsing of the aggregate array structure returned by `Auth::getCompletedChallenges()`, calculating correct overall challenge totals and rendering metrics properly (`app/Views/home.php`)
+
+### 🔴 Request & Response Hygiene — Completed ✅
+- [x] Configure safe session cookie boundaries (`HttpOnly`, `SameSite=Lax`, and `Secure` in production) in `Session::start()` and replace all raw `session_start()` boots (`index.php`, `api_bootstrap.php`, `app/Core/Session.php`, `app/Core/Router.php`, `lang/Translator.php`, `public/attacker.php`, `tests/Core/AuthTest.php`)
+- [x] Implement robust login attempts throttling (5 failures per 5 minutes per IP/Username) stored in `storage/logs/login_throttle.json` (`app/Controllers/AuthController.php`)
+- [x] Build global escaping utility function `e(?string $value)` using `htmlspecialchars` at the top of `config/config.php` (fixing a critical bug where the early return in database setup bypassed the definition of `e()`) and migrate standard core views to use it instead of raw escaping calls
+- [x] Enforce correct RESTful HTTP responses (`401 Unauthorized` and `403 Forbidden`) with custom styled terminal error alerts instead of plain redirects (`app/Controllers/AuthController.php`, `app/Core/Router.php`)
+- [x] Enforce secure `hash_equals()` for all CSRF token comparisons centrally inside `Session::validateCsrfToken()`
+- [x] Apply strict `maxlength` boundaries on username/password login inputs and lab form fields (XSS, SQLi, CSRF, SSRF, Path Traversal) to restrict input parameters
+- [x] Add explicit `autocomplete` attributes (`username`, `current-password`) to the login form fields to align with user agent specifications
+- [x] Correct Font Awesome shield icon typos: replace all `fa-shield-halved` references with the universally supported `fa-shield-alt` icon (`shared/header.php`, `login.php`, `home.php`, `patch_xss.php`, `patch_sqli.php`, `patch_fileupload.php`)
+- [x] Introduce `robots.txt` in the root and `/public` directories to discourage search indexing in accidental public deployments
+- [x] Deploy explicit recursive log directory checks and auto-creation checks before calls to `file_put_contents()` in XSS labs, `attacker.php` and `api.php`
 
 ### 🔴 Secure Core — High Priority
 

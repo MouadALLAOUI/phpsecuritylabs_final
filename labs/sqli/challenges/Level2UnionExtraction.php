@@ -110,7 +110,7 @@ class Level2UnionExtraction extends BaseChallenge
       <div style="margin-bottom: 20px;">
         <label style="display: block; font-family: monospace; margin-bottom: 5px;">SEARCH AGENTS</label>
         <input type="text" name="search" class="mil-input" placeholder="Enter codename or real name..."
-          value="<?= htmlspecialchars($this->searchTerm) ?>">
+          value="<?= htmlspecialchars($this->searchTerm) ?>" maxlength="500">
       </div>
       <button type="submit" class="mil-button">SEARCH</button>
     </form>

@@ -118,12 +118,12 @@ class Level1AuthBypass extends BaseChallenge
                 <label style="display: block; font-family: monospace; margin-bottom: 5px;">AGENT CODENAME</label>
                 <input type="text" name="codename" class="mil-input" 
                        placeholder="Enter codename (e.g., GHOST)" 
-                       value="<?= htmlspecialchars($this->codename) ?>">
+                       value="<?= htmlspecialchars($this->codename) ?>" maxlength="100">
             </div>
             <div style="margin-bottom: 20px;">
                 <label style="display: block; font-family: monospace; margin-bottom: 5px;">STATUS CODE</label>
                 <input type="password" name="password" class="mil-input" 
-                       placeholder="Enter status code...">
+                       placeholder="Enter status code..." maxlength="100">
             </div>
             <button type="submit" class="mil-button">AUTHENTICATE</button>
         </form>

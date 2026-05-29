@@ -26,9 +26,12 @@ class ChallengeLoader
     }
 
     $class = $map[$challenge];
+    if (is_array($class)) {
+      $class = $class['class'] ?? null;
+    }
 
     // Ensure class exists (map file should handle any required includes/autoload)
-    if (!class_exists($class)) {
+    if (!$class || !class_exists($class)) {
       return null;
     }
 

@@ -9,10 +9,5 @@ return [
         'name' => 'Basic IDOR',
         'class' => '\\Labs\\IDOR\\Challenges\\Level1BasicIDOR',
         'description' => 'Exploit insecure direct object references to access unauthorized data'
-    ],
-    'lvl2' => [
-        'name' => 'Advanced IDOR',
-        'class' => '\\Labs\\IDOR\\Challenges\\Level2AdvancedIDOR',
-        'description' => 'Bypass access controls and enumerate sensitive user information'
     ]
 ];

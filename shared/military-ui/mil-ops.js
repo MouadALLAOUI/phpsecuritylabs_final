@@ -408,70 +408,56 @@ function initializeSystem() {
 }
 
 // ============================================
-// LANGUAGE SWITCHER
+// LANGUAGE SWITCHER - Uses standard settings actions
 // ============================================
 function changeLanguage(lang) {
-  // Save to session via AJAX
-  fetch('?page=settings&action=set_language', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'lang=' + encodeURIComponent(lang)
-  })
-  .then(response => response.text())
-  .then(data => {
-    console.log('Language changed to:', lang);
-    // Reload page to apply new language
-    window.location.reload();
-  })
-  .catch(error => {
-    console.error('Error changing language:', error);
-  });
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '?page=settings&action=language';
+  
+  const input = document.createElement('input');
+  input.type = 'hidden';
+  input.name = 'language';
+  input.value = lang;
+  
+  form.appendChild(input);
+  document.body.appendChild(form);
+  form.submit();
 }
 
 // ============================================
-// THEME TOGGLE
+// THEME TOGGLE - Cycles military -> light -> dark
 // ============================================
 function toggleTheme() {
-  const body = document.body;
-  const currentTheme = localStorage.getItem('theme') || 'military';
+  const currentTheme = document.body.classList.contains('theme-light') ? 'light' : 
+                       (document.body.classList.contains('theme-dark') ? 'dark' : 'military');
+  const themes = ['military', 'light', 'dark'];
+  const currentIndex = themes.indexOf(currentTheme);
+  const nextTheme = themes[(currentIndex + 1) % themes.length];
+
+  // Remove all theme classes and add the new one
+  document.body.classList.remove('theme-light', 'theme-dark', 'theme-military');
+  document.body.classList.add('theme-' + nextTheme);
+
+  // Save to localStorage for persistence across pages
+  localStorage.setItem('theme', nextTheme);
   
-  let newTheme;
-  if (currentTheme === 'military') {
-    newTheme = 'light';
-    body.classList.remove('mil-body');
-    body.classList.add('light-theme');
-  } else {
-    newTheme = 'military';
-    body.classList.remove('light-theme');
-    body.classList.add('mil-body');
-  }
-  
-  localStorage.setItem('theme', newTheme);
-  
-  // Save to session via AJAX
-  fetch('?page=settings&action=set_theme', {
+  // Persist to cookie
+  document.cookie = 'theme=' + nextTheme + '; path=/; max-age=' + (30 * 24 * 60 * 60);
+
+  // Update backend setting if possible
+  fetch('?page=settings&action=theme', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: 'theme=' + encodeURIComponent(newTheme)
-  })
-  .then(response => response.text())
-  .then(data => {
-    console.log('Theme changed to:', newTheme);
-  })
-  .catch(error => {
-    console.error('Error changing theme:', error);
-  });
+    body: 'theme=' + encodeURIComponent(nextTheme)
+  }).catch(err => console.log('Theme update failed:', err));
 }
 
-// Initialize theme on page load
+// Initialize theme state on page load
 document.addEventListener('DOMContentLoaded', function() {
   const savedTheme = localStorage.getItem('theme') || 'military';
-  if (savedTheme === 'light') {
-    document.body.classList.add('light-theme');
-    document.body.classList.remove('mil-body');
-  }
+  document.body.classList.remove('theme-light', 'theme-dark', 'theme-military');
+  document.body.classList.add('theme-' + savedTheme);
 });

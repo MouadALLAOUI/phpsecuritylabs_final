@@ -40,9 +40,7 @@ class Translator
             $this->loadLanguage($lang);
             
             // Store in session for persistence
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
+            \App\Core\Session::start();
             $_SESSION['lang'] = $lang;
             
             // Store in cookie for 30 days

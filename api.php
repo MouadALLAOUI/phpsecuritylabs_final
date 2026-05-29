@@ -26,7 +26,11 @@ header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 
 // Basic rate limiting - 100 requests per minute per IP
-$rateLimitFile = __DIR__ . '/storage/logs/api_rate_limit.json';
+$logDir = __DIR__ . '/storage/logs';
+if (!is_dir($logDir)) {
+    mkdir($logDir, 0755, true);
+}
+$rateLimitFile = $logDir . '/api_rate_limit.json';
 $currentTime = time();
 $windowSize = 60; // 1 minute window
 $maxRequests = 100;
@@ -69,12 +73,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once __DIR__ . '/index.php';
+require_once __DIR__ . '/api_bootstrap.php';
 
 use App\Core\Auth;
 use App\Core\Database;
 
 $response = ['success' => false, 'data' => null, 'error' => null];
+
+// Whitelist of valid lab slugs
+$allowedLabs = [
+    'xss', 'sqli', 'file_upload', 'csrf', 'xxe', 
+    'ssrf', 'idor', 'jwt', 'path_traversal', 'deserialization'
+];
 
 try {
     $auth = new Auth();
@@ -89,6 +99,9 @@ try {
             $db = Database::getInstance('app');
             
             if ($lab) {
+                if (!in_array($lab, $allowedLabs)) {
+                    throw new Exception('Invalid lab parameter', 400);
+                }
                 $sql = "SELECT lab_name, challenge, completed_at FROM lab_progress 
                         WHERE user_id = :user_id AND lab_name = :lab_name AND completed = 1";
                 $stmt = $db->query($sql, ['user_id' => $auth->getUserId(), 'lab_name' => $lab]);
@@ -104,10 +117,17 @@ try {
             break;
             
         case 'challenge':
+            $enableVulns = getenv('LABS_ENABLE_INTENTIONAL_VULNS') ?: ($_ENV['LABS_ENABLE_INTENTIONAL_VULNS'] ?? 'false');
+            if (trim(strtolower($enableVulns)) !== 'true') {
+                throw new Exception('Vulnerable labs are disabled in this environment', 403);
+            }
             $lab = $_GET['lab'] ?? '';
             $lvl = $_GET['lvl'] ?? '';
             if (!$lab || !$lvl) {
                 throw new Exception('Lab and level parameters required', 400);
+            }
+            if (!in_array($lab, $allowedLabs)) {
+                throw new Exception('Invalid lab parameter', 400);
             }
             $mapFile = __DIR__ . "/labs/{$lab}/challenge_map.php";
             if (!file_exists($mapFile)) {
@@ -118,7 +138,10 @@ try {
                 throw new Exception('Level not found', 404);
             }
             $class = $map[$lvl];
-            if (!class_exists($class)) {
+            if (is_array($class)) {
+                $class = $class['class'] ?? null;
+            }
+            if (!$class || !class_exists($class)) {
                 throw new Exception('Challenge class not found', 500);
             }
             $challenge = new $class();

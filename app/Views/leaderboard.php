@@ -3,118 +3,161 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Leaderboard - MIL-OPS</title>
+  <title>Leaderboard - Cyber Range Console</title>
   <?php include_once ROOT . '/shared/military-ui/header.php'; ?>
   <style>
-  .leaderboard-container {
-    max-width: 800px;
-    margin: 2rem auto;
-  }
+    /* Scope styling to prevent any layout overlap on standard pages */
+    .leaderboard-box {
+      max-width: 800px;
+      margin: 0 auto;
+    }
 
-  .rank-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid #1a3d2f;
-    transition: all 0.3s ease;
-  }
+    .ladder-row {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+    }
 
-  .rank-item:hover {
-    background: rgba(0, 255, 127, 0.05);
-  }
+    .ladder-row:hover {
+      border-color: var(--border-highlight);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
 
-  .rank-number {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #00ff7f;
-    width: 60px;
-    text-align: center;
-  }
+    .rank-num {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 700;
+      width: 50px;
+      color: var(--text-dim);
+    }
 
-  .rank-icon {
-    font-size: 1.5rem;
-    margin-right: 1rem;
-  }
+    /* Elegant Metallic Ranks */
+    .ladder-row:nth-child(1) .rank-num { color: #fbbf24; } /* Gold */
+    .ladder-row:nth-child(2) .rank-num { color: #cbd5e1; } /* Silver */
+    .ladder-row:nth-child(3) .rank-num { color: #b45309; } /* Bronze */
 
-  .rank-info {
-    flex: 1;
-  }
+    .rank-icon-wrapper {
+      font-size: 20px;
+      margin-right: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+    }
 
-  .rank-codename {
-    font-size: 1.2rem;
-    color: #00ff7f;
-    margin-bottom: 0.25rem;
-  }
+    .player-details {
+      flex: 1;
+    }
 
-  .rank-username {
-    color: #6b7280;
-    font-size: 0.9rem;
-  }
+    .player-codename {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-  .rank-score {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #fbbf24;
-    padding: 0.5rem 1rem;
-    background: rgba(251, 191, 36, 0.1);
-    border-radius: 4px;
-  }
+    .player-username {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
 
-  .trophy {
-    font-size: 3rem;
-    text-align: center;
-    margin: 2rem 0;
-  }
+    .player-score {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: #38bdf8;
+      background-color: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
   </style>
 </head>
 
-<body class="mil-ops-bg">
+<body class="mil-body">
   <?php include_once ROOT . '/shared/sidebar.php'; ?>
 
-  <main class="mil-ops-main">
-    <div class="mission-header">
-      <h1><span class="icon">🏆</span> OPERATOR RANKINGS</h1>
-      <p class="objective">Top performers in cybersecurity training operations</p>
+  <!-- HEADER -->
+  <div class="mission-header">
+    <div class="mission-title">
+      <i class="fas fa-trophy text-yellow-500"></i>
+      <span>OPERATOR LEADERBOARD</span>
+    </div>
+    <div class="mission-grid">
+      <div class="mission-stat">
+        <div class="stat-label">Objective</div>
+        <div class="stat-value">Breach modules to claim active rank status</div>
+      </div>
+      <div class="mission-stat">
+        <div class="stat-label">CLEARANCE REQUIRED</div>
+        <div class="stat-value">STANDARD OPERATOR</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD LADDER -->
+  <div class="leaderboard-box">
+    <div class="flex justify-center items-center gap-4 text-3xl py-4 mb-4">
+      <i class="fas fa-medal text-yellow-500"></i>
+      <i class="fas fa-medal text-slate-300"></i>
+      <i class="fas fa-medal text-amber-700"></i>
     </div>
 
-    <div class="leaderboard-container">
-      <div class="trophy">🥇 🥈 🥉</div>
-
-      <?php if (empty($leaderboard)): ?>
-      <div class="intel-brief">
-        <p>No operators have completed challenges yet.</p>
-        <p>Be the first to climb the ranks!</p>
+    <?php if (empty($leaderboard)): ?>
+    <div class="terminal-panel">
+      <div class="terminal-body text-center py-8">
+        <i class="fas fa-users-slash text-slate-500 text-3xl mb-3"></i>
+        <p class="text-slate-400 font-semibold uppercase tracking-wider text-xs">No Operator Achievements Logged</p>
+        <p class="text-slate-600 text-xs mt-1">Be the first to claim a rank spot!</p>
       </div>
-      <?php else: ?>
+    </div>
+    <?php else: ?>
+    <div class="space-y-1">
       <?php foreach ($leaderboard as $index => $operator): ?>
-      <div class="rank-item">
-        <div class="rank-number"><?= $index + 1 ?></div>
-        <div class="rank-icon">
-          <?php if ($index === 0): ?>🥇
-          <?php elseif ($index === 1): ?>🥈
-          <?php elseif ($index === 2): ?>🥉
-          <?php else: ?>🎖️<?php endif; ?>
+      <div class="ladder-row">
+        <div class="rank-num">#<?= $index + 1 ?></div>
+        <div class="rank-icon-wrapper">
+          <?php if ($index === 0): ?><i class="fas fa-medal text-yellow-500"></i>
+          <?php elseif ($index === 1): ?><i class="fas fa-medal text-slate-300"></i>
+          <?php elseif ($index === 2): ?><i class="fas fa-medal text-amber-700"></i>
+          <?php else: ?><i class="fas fa-award text-slate-600 text-sm"></i><?php endif; ?>
         </div>
-        <div class="rank-info">
-          <div class="rank-codename"><?= htmlspecialchars($operator['codename'] ?? 'Unknown') ?></div>
-          <div class="rank-username">@<?= htmlspecialchars($operator['username']) ?></div>
+        <div class="player-details">
+          <div class="player-codename"><?= e($operator['codename'] ?? 'Unknown') ?></div>
+          <div class="player-username">@<?= e($operator['username']) ?></div>
         </div>
-        <div class="rank-score"><?= $operator['completed_count'] ?> COMPLETED</div>
+        <div class="player-score"><?= $operator['completed_count'] ?> Completed</div>
       </div>
       <?php endforeach; ?>
-      <?php endif; ?>
     </div>
+    <?php endif; ?>
 
-    <div class="intel-brief">
-      <h3>RANKING CRITERIA</h3>
-      <ul>
-        <li>Operators ranked by total number of completed challenges</li>
-        <li>Tie-breaker: earliest registration date</li>
-        <li>All lab types contribute equally to ranking</li>
-        <li>Complete more challenges to climb the leaderboard</li>
-      </ul>
+    <!-- RULES PANEL -->
+    <div class="terminal-panel mt-6">
+      <div class="terminal-header">
+        <i class="fas fa-circle-info"></i>
+        <span>Evaluation Criteria</span>
+      </div>
+      <div class="terminal-body">
+        <ul class="space-y-2.5 text-xs text-slate-400 font-mono">
+          <li class="flex items-start gap-2.5"><span class="text-blue-500">&bull;</span> Rank evaluation is driven by total successfully completed sandbox tasks.</li>
+          <li class="flex items-start gap-2.5"><span class="text-blue-500">&bull;</span> Collision resolve factor: priority sorted by registration chronologies.</li>
+          <li class="flex items-start gap-2.5"><span class="text-blue-500">&bull;</span> Standard and classified modules yield equal rank points.</li>
+        </ul>
+      </div>
     </div>
-  </main>
+  </div>
 
   <?php include_once ROOT . '/shared/military-ui/footer.php'; ?>
 </body>
