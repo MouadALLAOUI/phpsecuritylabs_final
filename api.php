@@ -69,12 +69,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once __DIR__ . '/index.php';
+require_once __DIR__ . '/api_bootstrap.php';
 
 use App\Core\Auth;
 use App\Core\Database;
 
 $response = ['success' => false, 'data' => null, 'error' => null];
+
+// Whitelist of valid lab slugs
+$allowedLabs = [
+    'xss', 'sqli', 'file_upload', 'csrf', 'xxe', 
+    'ssrf', 'idor', 'jwt', 'path_traversal', 'deserialization'
+];
 
 try {
     $auth = new Auth();
@@ -89,6 +95,9 @@ try {
             $db = Database::getInstance('app');
             
             if ($lab) {
+                if (!in_array($lab, $allowedLabs)) {
+                    throw new Exception('Invalid lab parameter', 400);
+                }
                 $sql = "SELECT lab_name, challenge, completed_at FROM lab_progress 
                         WHERE user_id = :user_id AND lab_name = :lab_name AND completed = 1";
                 $stmt = $db->query($sql, ['user_id' => $auth->getUserId(), 'lab_name' => $lab]);
@@ -108,6 +117,9 @@ try {
             $lvl = $_GET['lvl'] ?? '';
             if (!$lab || !$lvl) {
                 throw new Exception('Lab and level parameters required', 400);
+            }
+            if (!in_array($lab, $allowedLabs)) {
+                throw new Exception('Invalid lab parameter', 400);
             }
             $mapFile = __DIR__ . "/labs/{$lab}/challenge_map.php";
             if (!file_exists($mapFile)) {
