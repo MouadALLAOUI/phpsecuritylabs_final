@@ -1,9 +1,5 @@
 # TODO List
 
-- [ ] add simulation db to Database.php
-
----
-
 ## 🔧 Fixes Needed
 
 ### 🔴 Secure Core — High Priority

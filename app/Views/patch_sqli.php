@@ -3,181 +3,162 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Patch Report: SQL Injection - MIL-OPS</title>
+  <title>Vulnerability Patch Report: SQL Injection</title>
   <?php include_once ROOT . '/shared/military-ui/header.php'; ?>
   <style>
-  .patch-container {
-    max-width: 900px;
-    margin: 2rem auto;
-  }
+    .patch-box {
+      max-width: 900px;
+      margin: 0 auto;
+    }
 
-  .vuln-section {
-    background: rgba(13, 18, 24, 0.8);
-    border: 1px solid #1a3d2f;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    border-radius: 4px;
-  }
+    .vuln-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 24px;
+      margin-bottom: 24px;
+      border-radius: 8px;
+    }
 
-  .payload-box {
-    background: #0a0f14;
-    border-left: 3px solid #ef4444;
-    padding: 1rem;
-    font-family: 'Courier New', monospace;
-    margin: 1rem 0;
-    overflow-x: auto;
-  }
+    .vuln-card h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-  .fix-box {
-    background: #0a0f14;
-    border-left: 3px solid #00ff7f;
-    padding: 1rem;
-    font-family: 'Courier New', monospace;
-    margin: 1rem 0;
-  }
+    .payload-card {
+      background-color: rgba(220, 38, 38, 0.04);
+      border-left: 3px solid var(--mil-red);
+      padding: 14px 18px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      margin: 12px 0;
+      border-radius: 0 6px 6px 0;
+      color: #f87171;
+      word-break: break-all;
+    }
 
-  .code-comment {
-    color: #6b7280;
-  }
+    .remediation-card {
+      background-color: rgba(13, 148, 136, 0.04);
+      border-left: 3px solid var(--mil-green);
+      padding: 14px 18px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      margin: 12px 0;
+      border-radius: 0 6px 6px 0;
+      color: #2dd4bf;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
 
-  .code-keyword {
-    color: #fbbf24;
-  }
-
-  .code-string {
-    color: #00ff7f;
-  }
-
-  .code-var {
-    color: #60a5fa;
-  }
+    .code-tag-comment { color: #64748b; }
+    .code-tag-string { color: #2dd4bf; }
+    .code-tag-keyword { color: #fbbf24; }
   </style>
 </head>
 
-<body class="mil-ops-bg">
+<body class="mil-body">
   <?php include_once ROOT . '/shared/sidebar.php'; ?>
 
-  <main class="mil-ops-main">
-    <div class="mission-header">
-      <h1><span class="icon">🛡️</span> VULNERABILITY PATCH REPORT</h1>
-      <p class="objective">SQL Injection (SQLi) - Analysis & Remediation</p>
-      <div class="clearance-badge">THREAT LEVEL: CRITICAL</div>
+  <!-- HEADER -->
+  <div class="mission-header">
+    <div class="mission-title">
+      <i class="fas fa-file-shield text-blue-500"></i>
+      <span>VULNERABILITY ANALYSIS REPORT</span>
+    </div>
+    <div class="mission-grid">
+      <div class="mission-stat">
+        <div class="stat-label">Vector</div>
+        <div class="stat-value">SQL Injection (SQLi)</div>
+      </div>
+      <div class="mission-stat">
+        <div class="stat-label">Severity Clearance</div>
+        <div class="stat-value danger">THREAT LEVEL: CRITICAL</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="patch-box">
+    <!-- Level 1: Authentication Bypass -->
+    <div class="vuln-card">
+      <h2><i class="fas fa-satellite-dish text-amber-500"></i> Level 1: Authentication Bypass</h2>
+      <p class="text-xs text-slate-400 leading-relaxed mb-4"><strong>Attack Vector:</strong> Insecure user credentials parsed directly into query structures without sanitization.</p>
+
+      <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Vulnerable Input Payloads:</h3>
+      <div class="payload-card">Username: admin' --</div>
+      <div class="payload-card">Username: ' OR '1'='1' --</div>
+
+      <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mt-4 mb-2">Technical Remediation Fix:</h3>
+      <div class="remediation-card"><span class="code-tag-comment">// ❌ VULNERABLE CODE:</span>
+$sql = <span class="code-tag-string">"SELECT * FROM users WHERE username = '"</span> . $_POST[<span class="code-tag-string">'username'</span>] . <span class="code-tag-string">"' AND password = '"</span> . $password . <span class="code-tag-string">"'"</span>;
+$result = mysqli_query($conn, $sql);
+
+<span class="code-tag-comment">// ✅ SECURE REMEDIATION (Prepared Statements):</span>
+$stmt = $pdo->prepare(<span class="code-tag-string">"SELECT * FROM users WHERE username = :username"</span>);
+$stmt->execute([<span class="code-tag-string">'username'</span> => $_POST[<span class="code-tag-string">'username'</span>]]);
+$user = $stmt->fetch();
+if ($user && password_verify($password, $user[<span class="code-tag-string">'password'</span>])) {
+    <span class="code-tag-comment">// Login authentication granted</span>
+}</div>
+
+      <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mt-4 mb-2">Core Mitigation Directives:</h3>
+      <ul class="list-disc pl-5 text-xs text-slate-400 space-y-1.5 mt-2">
+        <li>Enforce strictly bound parameter mappings for all database evaluations.</li>
+        <li>Never chain untrusted parameters directly inside SQL command variables.</li>
+      </ul>
     </div>
 
-    <div class="patch-container">
-      <!-- Level 1: Authentication Bypass -->
-      <div class="vuln-section">
-        <h2><span class="icon">⚠️</span> LEVEL 1: AUTHENTICATION BYPASS</h2>
-        <p><strong>Vector:</strong> User input concatenated directly into SQL query string</p>
+    <!-- Level 2: UNION-BASED EXTRACTION -->
+    <div class="vuln-card">
+      <h2><i class="fas fa-key text-amber-500"></i> Level 2: UNION-Based Extraction</h2>
+      <p class="text-xs text-slate-400 leading-relaxed mb-4"><strong>Attack Vector:</strong> Insecure search arguments allowing attackers to inject auxiliary SELECT statements to exfiltrate other tables.</p>
 
-        <h3>Attack Payloads:</h3>
-        <div class="payload-box">Username: admin' --</div>
-        <div class="payload-box">Username: ' OR '1'='1' --</div>
-        <div class="payload-box">Password: ' OR 1=1 --</div>
+      <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Vulnerable Input Payloads:</h3>
+      <div class="payload-card">' UNION SELECT NULL, secret_key, NULL, NULL FROM secrets --</div>
 
-        <h3>Vulnerability Analysis:</h3>
-        <p>Login form accepts username/password and concatenates them directly into SQL query without parameterization.
-        </p>
+      <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mt-4 mb-2">Technical Remediation Fix:</h3>
+      <div class="remediation-card"><span class="code-tag-comment">// ❌ VULNERABLE CODE:</span>
+$search = $_GET[<span class="code-tag-string">'q'</span>];
+$sql = <span class="code-tag-string">"SELECT * FROM agents WHERE codename LIKE '%$search%'"</span>;
 
-        <h3>Secure Fix:</h3>
-        <div class="fix-box">
-          <span class="code-comment">// ❌ VULNERABLE:</span>
-          $sql = <span class="code-string">"SELECT * FROM users WHERE username = '"</span> . $_POST[<span
-            class="code-string">'username'</span>] . <span class="code-string">"' AND password = '"</span> . $password .
-          <span class="code-string">"'"</span>;
-          $result = mysqli_query($conn, $sql);
+<span class="code-tag-comment">// ✅ SECURE REMEDIATION:</span>
+$search = $_GET[<span class="code-tag-string">'q'</span>];
+$stmt = $pdo->prepare(<span class="code-tag-string">"SELECT * FROM agents WHERE codename LIKE :search"</span>);
+$stmt->execute([<span class="code-tag-string">'search'</span> => <span class="code-tag-string">'%'</span> . $search . <span class="code-tag-string">'%'</span>]);
+$agents = $stmt->fetchAll();</div>
 
-          <span class="code-comment">// ✅ SECURE (Prepared Statements):</span>
-          $stmt = $pdo->prepare(<span class="code-string">"SELECT * FROM users WHERE username = :username"</span>);
-          $stmt->execute([<span class="code-string">'username'</span> => $_POST[<span
-            class="code-string">'username'</span>]]);
-          $user = $stmt->fetch();
-          <span class="code-keyword">if</span> ($user && password_verify($password, $user[<span
-            class="code-string">'password'</span>])) {
-          <span class="code-comment">// Login successful</span>
-          }
-        </div>
+      <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mt-4 mb-2">Core Mitigation Directives:</h3>
+      <ul class="list-disc pl-5 text-xs text-slate-400 space-y-1.5 mt-2">
+        <li>Execute database query directives only through structured PDO/MySQLi statement bindings.</li>
+        <li>Use safe abstraction tools such as ORMs to build query parameters cleanly.</li>
+      </ul>
+    </div>
 
-        <h3>Key Defense:</h3>
-        <ul>
-          <li>Use prepared statements with parameterized queries</li>
-          <li>Never concatenate user input into SQL strings</li>
-          <li>Use password_hash() / password_verify() for credentials</li>
-          <li>Implement rate limiting on login endpoints</li>
-        </ul>
+    <!-- GENERAL SUMMARY -->
+    <div class="terminal-panel mt-6">
+      <div class="terminal-header">
+        <i class="fas fa-shield-halved text-blue-500"></i>
+        <span>SQLi Defense Regulations Overview</span>
       </div>
-
-      <!-- Level 2: UNION Extraction -->
-      <div class="vuln-section">
-        <h2><span class="icon">⚠️</span> LEVEL 2: UNION-BASED EXTRACTION</h2>
-        <p><strong>Vector:</strong> Search parameter allows UNION SELECT to extract data from other tables</p>
-
-        <h3>Attack Payloads:</h3>
-        <div class="payload-box">' UNION SELECT NULL, secret_key, NULL, NULL FROM secrets --</div>
-        <div class="payload-box">' UNION SELECT 1, GROUP_CONCAT(secret_key), 3, 4 FROM secrets --</div>
-
-        <h3>Vulnerability Analysis:</h3>
-        <p>Search functionality uses unsanitized input in WHERE clause, allowing attacker to append UNION SELECT
-          statements to extract data from arbitrary tables.</p>
-
-        <h3>Secure Fix:</h3>
-        <div class="fix-box">
-          <span class="code-comment">// ❌ VULNERABLE:</span>
-          $search = $_GET[<span class="code-string">'q'</span>];
-          $sql = <span class="code-string">"SELECT * FROM agents WHERE codename LIKE '%$search%'"</span>;
-
-          <span class="code-comment">// ✅ SECURE (Prepared Statements with LIKE):</span>
-          $search = $_GET[<span class="code-string">'q'</span>];
-          $stmt = $pdo->prepare(<span class="code-string">"SELECT * FROM agents WHERE codename LIKE :search"</span>);
-          $stmt->execute([<span class="code-string">'search'</span> => <span class="code-string">'%'</span> . $search .
-          <span class="code-string">'%'</span>]);
-          $agents = $stmt->fetchAll();
-        </div>
-
-        <h3>Key Defense:</h3>
-        <ul>
-          <li>Always use prepared statements, even for SELECT queries</li>
-          <li>Bind parameters for LIKE clauses (include % wildcards in value)</li>
-          <li>Apply principle of least privilege to database accounts</li>
-          <li>Consider using stored procedures for complex queries</li>
-        </ul>
-      </div>
-
-      <div class="intel-brief">
-        <h3>GENERAL SQL INJECTION PREVENTION STRATEGY</h3>
-        <ol>
-          <li><strong>Prepared Statements:</strong> Use PDO or MySQLi with bound parameters for ALL queries</li>
-          <li><strong>ORM/Query Builders:</strong> Use frameworks that abstract raw SQL (Eloquent, Doctrine)</li>
-          <li><strong>Input Validation:</strong> Whitelist expected data types and formats</li>
-          <li><strong>Error Handling:</strong> Never expose SQL errors to users (use custom error pages)</li>
-          <li><strong>Database Permissions:</strong> Limit database user privileges (no DROP, ALTER)</li>
-          <li><strong>Web Application Firewall:</strong> Deploy WAF rules to detect SQLi patterns</li>
-          <li><strong>Regular Audits:</strong> Perform code reviews and penetration testing</li>
+      <div class="terminal-body font-mono text-xs text-slate-400">
+        <ol class="space-y-2.5">
+          <li>1. Zero Concatenations: Reject any dynamic queries constructed by chaining variables into raw commands.</li>
+          <li>2. Restrict Privileges: Enforce standard least-privilege policies on data access accounts.</li>
         </ol>
       </div>
-
-      <div class="vuln-section">
-        <h3>ADDITIONAL SECURITY MEASURES</h3>
-        <div class="fix-box">
-          <span class="code-comment">// Example: Secure database helper function</span>
-          <span class="code-keyword">function</span> getUserByUsername($username) {
-          $db = Database::getInstance(<span class="code-string">'app'</span>);
-          $pdo = $db->getConnection();
-
-          $stmt = $pdo->prepare(<span class="code-string">"SELECT id, username, email, role FROM users WHERE username =
-            :username"</span>);
-          $stmt->execute([<span class="code-string">'username'</span> => $username]);
-
-          <span class="code-keyword">return</span> $stmt->fetch(PDO::FETCH_ASSOC);
-          }
-        </div>
-      </div>
-
-      <div style="text-align: center; margin-top: 2rem;">
-        <a href="?page=labs" class="btn-primary">← RETURN TO LABS</a>
-      </div>
     </div>
-  </main>
+
+    <div class="text-center mt-8">
+      <a href="?page=labs" class="mil-button">
+        <i class="fas fa-arrow-left"></i> Return to directives
+      </a>
+    </div>
+  </div>
 
   <?php include_once ROOT . '/shared/military-ui/footer.php'; ?>
 </body>

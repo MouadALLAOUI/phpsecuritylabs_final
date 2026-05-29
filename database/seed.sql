@@ -11,16 +11,16 @@ USE php_security_labs_app;
 -- users (10 rows)
 -- ------------------------------------------------------------
 INSERT INTO users (username, email, password, role, is_admin) VALUES
-('ghost',        'ghost@shadowops.mil',    '5f4dcc3b5aa765d61d8327deb882cf99', 'agent',   0),
-('falcon',       'falcon@blackunit.mil',   '5f4dcc3b5aa765d61d8327deb882cf99', 'agent',   0),
-('wraith',       'wraith@intel.mil',       '5f4dcc3b5aa765d61d8327deb882cf99', 'agent',   0),
-('orion',        'orion@cybercom.mil',     '5f4dcc3b5aa765d61d8327deb882cf99', 'agent',   0),
-('viper',        'viper@specops.mil',      '5f4dcc3b5aa765d61d8327deb882cf99', 'agent',   0),
-('commander_x',  'cx@central.mil',         '5f4dcc3b5aa765d61d8327deb882cf99', 'leader',  1),
-('analyst_j',    'j.analyst@intel.mil',    '5f4dcc3b5aa765d61d8327deb882cf99', 'analyst', 0),
-('admin_root',   'root@system.mil',        '5f4dcc3b5aa765d61d8327deb882cf99', 'admin',   1),
-('recruit_01',   'newguy@train.mil',       '5f4dcc3b5aa765d61d8327deb882cf99', 'user',    0),
-('recruit_02',   'green@train.mil',        '5f4dcc3b5aa765d61d8327deb882cf99', 'user',    0);
+('ghost',        'ghost@shadowops.mil',    '$2y$10$qXX3Pggxe0tDoplt.kiB/u9cFeWf4dv6JvD7sxCP69UYGomBbnW3y', 'agent',   0),
+('falcon',       'falcon@blackunit.mil',   '$2y$10$qXX3Pggxe0tDoplt.kiB/u9cFeWf4dv6JvD7sxCP69UYGomBbnW3y', 'agent',   0),
+('wraith',       'wraith@intel.mil',       '$2y$10$qXX3Pggxe0tDoplt.kiB/u9cFeWf4dv6JvD7sxCP69UYGomBbnW3y', 'agent',   0),
+('orion',        'orion@cybercom.mil',     '$2y$10$qXX3Pggxe0tDoplt.kiB/u9cFeWf4dv6JvD7sxCP69UYGomBbnW3y', 'agent',   0),
+('viper',        'viper@specops.mil',      '$2y$10$qXX3Pggxe0tDoplt.kiB/u9cFeWf4dv6JvD7sxCP69UYGomBbnW3y', 'agent',   0),
+('commander_x',  'cx@central.mil',         '$2y$10$qXX3Pggxe0tDoplt.kiB/u9cFeWf4dv6JvD7sxCP69UYGomBbnW3y', 'leader',  1),
+('analyst_j',    'j.analyst@intel.mil',    '$2y$10$qXX3Pggxe0tDoplt.kiB/u9cFeWf4dv6JvD7sxCP69UYGomBbnW3y', 'analyst', 0),
+('admin_root',   'root@system.mil',        '$2y$10$qXX3Pggxe0tDoplt.kiB/u9cFeWf4dv6JvD7sxCP69UYGomBbnW3y', 'admin',   1),
+('recruit_01',   'newguy@train.mil',       '$2y$10$qXX3Pggxe0tDoplt.kiB/u9cFeWf4dv6JvD7sxCP69UYGomBbnW3y', 'user',    0),
+('recruit_02',   'green@train.mil',        '$2y$10$qXX3Pggxe0tDoplt.kiB/u9cFeWf4dv6JvD7sxCP69UYGomBbnW3y', 'user',    0);
 
 -- ------------------------------------------------------------
 -- sessions_lab (10 rows, tied to users)

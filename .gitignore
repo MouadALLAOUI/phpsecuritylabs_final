@@ -1,4 +1,3 @@
-```
 # Compiled and build artifacts
 *.pyc
 __pycache__/
@@ -18,6 +17,7 @@ venv/
 .env
 .env.local
 .env.*
+!.env.example
 
 # Build directories
 dist/
@@ -45,4 +45,3 @@ Thumbs.db
 
 # Logs
 *.log
-```

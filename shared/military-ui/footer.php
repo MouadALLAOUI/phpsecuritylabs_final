@@ -2,6 +2,7 @@
 
 /**
  * MIL-OPS CONTROL SYSTEM - Military Theme Footer
+ * Redesigned for Cyber Range Console
  */
 ?>
 </main>
@@ -11,13 +12,13 @@
   <div class="alert-content">
     <div class="alert-header">
       <i class="fas fa-exclamation-triangle"></i>
-      <span>SYSTEM ALERT</span>
+      <span>SYSTEM NOTICE</span>
     </div>
     <div class="alert-body" id="alertBody">
       <!-- Alert message inserted here -->
     </div>
     <div class="alert-footer">
-      <button class="btn-dismiss" onclick="closeSystemAlert()">ACKNOWLEDGE</button>
+      <button class="btn-dismiss" onclick="closeSystemAlert()">Acknowledge</button>
     </div>
   </div>
 </div>
@@ -36,7 +37,7 @@
 <!-- TOAST NOTIFICATION -->
 <div id="toastNotification" class="mil-toast hidden">
   <div class="toast-icon">
-    <i class="fas fa-check-circle"></i>
+    <i class="fas fa-check-circle text-teal-400"></i>
   </div>
   <div class="toast-message" id="toastMessage">
     Challenge completed! Progress saved.
@@ -62,11 +63,11 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <?php endif; ?>
 
-<footer class="mil-footer">
+<footer class="mil-footer theme-transition">
   <div class="footer-content">
-    <span class="classification">UNCLASSIFIED//FOUO</span>
+    <span class="classification">CLASSIFIED // FOR TRAINING PURPOSES ONLY</span>
     <span class="timestamp" id="footerTimestamp"><?php echo date('Y-m-d H:i:s'); ?></span>
-    <span>MIL-OPS TERMINAL v3.2.1</span>
+    <span>CYBER RANGE TERMINAL v4.0.0</span>
   </div>
 </footer>
 </body>

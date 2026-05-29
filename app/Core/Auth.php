@@ -24,8 +24,8 @@ class Auth
       return false;
     }
 
-    // Seeded passwords are MD5 (for training only – do not use in production)
-    if (md5($password) === $user['password']) {
+    // Seeded passwords use standard cryptographically secure bcrypt hashes
+    if (password_verify($password, $user['password'])) {
       // Regenerate session ID to prevent fixation
       session_regenerate_id(true);
       $_SESSION['user_id'] = $user['id'];
